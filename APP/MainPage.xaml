@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="APP.MainPage"
+             Title="FlipDoro">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="RingOuter">#DCD2F3</Color>
+            <Color x:Key="RingInner">#6A52AD</Color>
+            <Color x:Key="PrimaryButton">#4F2F9A</Color>
+            <Color x:Key="MutedText">#8E86A8</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid Padding="24,24,24,48" RowDefinitions="Auto,*,Auto">
+        <BoxView Grid.Row="0" HeightRequest="8" Opacity="0" />
+
+        <VerticalStackLayout
+            Grid.Row="1"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            Spacing="18">
+            <Grid
+                WidthRequest="300"
+                HeightRequest="300"
+                HorizontalOptions="Center"
+                VerticalOptions="Center">
+                <Border
+                    WidthRequest="300"
+                    HeightRequest="300"
+                    BackgroundColor="{StaticResource RingOuter}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 999" />
+
+                <Border
+                    WidthRequest="272"
+                    HeightRequest="272"
+                    BackgroundColor="{StaticResource RingInner}"
+                    Stroke="White"
+                    StrokeThickness="2"
+                    StrokeShape="RoundRectangle 999"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+
+                <Label
+                    Text="25:00"
+                    TextColor="White"
+                    FontSize="62"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+            </Grid>
+
+            <Label
+                Text="Ready to Focus"
+                TextColor="{StaticResource MutedText}"
+                FontSize="16"
+                HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <Button
+            Grid.Row="2"
+            Text="START FOCUS"
+            TextColor="White"
+            BackgroundColor="{StaticResource PrimaryButton}"
+            FontAttributes="Bold"
+            FontSize="18"
+            CornerRadius="20"
+            WidthRequest="260"
+            HeightRequest="58"
+            HorizontalOptions="Center"
+            Margin="0,0,0,8" />
+    </Grid>
+</ContentPage>
