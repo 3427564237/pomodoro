@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="APP.Features.Countdown.CountdownPage"
+             Title="Focus">
+
+    <Grid RowDefinitions="*,Auto" Padding="24">
+
+        <!-- Timer display area -->
+        <VerticalStackLayout Grid.Row="0"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="18">
+
+            <Grid WidthRequest="300" HeightRequest="300"
+                  HorizontalOptions="Center" VerticalOptions="Center">
+
+                <Border WidthRequest="300" HeightRequest="300"
+                        BackgroundColor="{StaticResource FlipRingOuter}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 150" />
+
+                <Border WidthRequest="272" HeightRequest="272"
+                        BackgroundColor="{StaticResource FlipRingInner}"
+                        Stroke="{StaticResource FlipOnPrimary}" StrokeThickness="2"
+                        StrokeShape="RoundRectangle 136"
+                        HorizontalOptions="Center" VerticalOptions="Center" />
+
+                <Label Text="25:00"
+                       TextColor="{StaticResource FlipOnPrimary}"
+                       FontSize="62"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Grid>
+
+            <Label Text="Focus"
+                   TextColor="{StaticResource FlipMutedText}"
+                   FontSize="16"
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <!-- Bottom control buttons -->
+        <HorizontalStackLayout Grid.Row="1"
+                               HorizontalOptions="Center"
+                               Spacing="24"
+                               Padding="0,0,0,32">
+            <Button Text="Stop" Clicked="OnStopClicked"
+                    WidthRequest="90" />
+            <Button Text="Pause" Clicked="OnPauseClicked"
+                    WidthRequest="90" />
+            <Button Text="Skip" Clicked="OnSkipClicked"
+                    WidthRequest="90" />
+        </HorizontalStackLayout>
+    </Grid>
+</ContentPage>

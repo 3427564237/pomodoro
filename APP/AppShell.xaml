@@ -3,12 +3,12 @@
     x:Class="APP.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:APP"
+    xmlns:main="clr-namespace:APP.Features.Main"
     Title="FlipDoro">
 
     <ShellContent
         Title="FlipDoro"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        ContentTemplate="{DataTemplate main:MainPage}"
+        Route="MainPage" /> <!-- Must match Routes.Main in Core/Navigation/Routes.cs -->
 
 </Shell>

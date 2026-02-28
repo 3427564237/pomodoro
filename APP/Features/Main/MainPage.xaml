@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="APP.Features.Main.MainPage"
+             Title="FlipDoro"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light={StaticResource FlipSurface}, Dark={StaticResource FlipSurfaceDark}}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="24,48,24,24">
+
+        <!-- Top: Settings gear -->
+        <Button Grid.Row="0"
+                Text="⚙"
+                FontSize="24"
+                BackgroundColor="{StaticResource FlipTransparent}"
+                TextColor="{StaticResource Gray500}"
+                BorderWidth="0"
+                Padding="8"
+                HorizontalOptions="Start"
+                Clicked="OnSettingsClicked" />
+
+        <!-- Center: Timer circle + info -->
+        <VerticalStackLayout Grid.Row="1"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="18">
+
+            <!-- Timer circle (tap → TimeSettings) -->
+            <Grid WidthRequest="300" HeightRequest="300"
+                  HorizontalOptions="Center" VerticalOptions="Center">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnTimerCircleTapped" />
+                </Grid.GestureRecognizers>
+
+                <Border WidthRequest="300" HeightRequest="300"
+                        BackgroundColor="{StaticResource FlipRingOuter}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 150" />
+
+                <Border WidthRequest="272" HeightRequest="272"
+                        BackgroundColor="{StaticResource FlipRingInner}"
+                        Stroke="{StaticResource FlipOnPrimary}" StrokeThickness="2"
+                        StrokeShape="RoundRectangle 136"
+                        HorizontalOptions="Center" VerticalOptions="Center" />
+
+                <VerticalStackLayout HorizontalOptions="Center"
+                                     VerticalOptions="Center"
+                                     Spacing="4">
+                    <Label Text="25:00"
+                           TextColor="{StaticResource FlipOnPrimary}"
+                           FontSize="62"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="2 cycles · 5 min break"
+                           TextColor="{StaticResource FlipRingText}"
+                           FontSize="13"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Label Text="Face down to start"
+                   TextColor="{StaticResource FlipMutedText}"
+                   FontSize="16"
+                   HorizontalOptions="Center" />
+
+            <!-- TODO(M2): Remove or wrap in DEBUG-only build; replaced by Flip-to-Start -->
+            <Button Text="▶  Start"
+                    BackgroundColor="{StaticResource FlipRingInner}"
+                    TextColor="{StaticResource FlipOnPrimary}"
+                    CornerRadius="20"
+                    Padding="24,8"
+                    FontSize="16"
+                    HorizontalOptions="Center"
+                    Clicked="OnStartClicked" />
+        </VerticalStackLayout>
+
+        <!-- Bottom: Placeholder navigation bar -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,*,*,*" Padding="0,12,0,0">
+            <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
+                <Button Text="📅" FontSize="22"
+                        BackgroundColor="{StaticResource FlipTransparent}" BorderWidth="0" Padding="4"
+                        Clicked="OnCalendarClicked" />
+                <Label Text="Calendar" FontSize="10"
+                       HorizontalOptions="Center"
+                       TextColor="{StaticResource Gray400}" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                <Button Text="📓" FontSize="22"
+                        BackgroundColor="{StaticResource FlipTransparent}" BorderWidth="0" Padding="4"
+                        Clicked="OnJournalClicked" />
+                <Label Text="Journal" FontSize="10"
+                       HorizontalOptions="Center"
+                       TextColor="{StaticResource Gray400}" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
+                <Button Text="📊" FontSize="22"
+                        BackgroundColor="{StaticResource FlipTransparent}" BorderWidth="0" Padding="4"
+                        Clicked="OnStatsClicked" />
+                <Label Text="Stats" FontSize="10"
+                       HorizontalOptions="Center"
+                       TextColor="{StaticResource Gray400}" />
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="3" HorizontalOptions="Center" Spacing="2">
+                <Button Text="✅" FontSize="22"
+                        BackgroundColor="{StaticResource FlipTransparent}" BorderWidth="0" Padding="4"
+                        Clicked="OnTodoClicked" />
+                <Label Text="To-do" FontSize="10"
+                       HorizontalOptions="Center"
+                       TextColor="{StaticResource Gray400}" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -41,4 +41,14 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <!-- Flipdoro app colors (centralized; theme dictionaries will replace these in M3) -->
+    <Color x:Key="FlipRingOuter">#DCD2F3</Color>
+    <Color x:Key="FlipRingInner">#6A52AD</Color>
+    <Color x:Key="FlipRingText">#D4C8EE</Color>
+    <Color x:Key="FlipMutedText">#8E86A8</Color>
+    <Color x:Key="FlipOnPrimary">White</Color>
+    <Color x:Key="FlipTransparent">Transparent</Color>
+    <Color x:Key="FlipSurface">White</Color>
+    <Color x:Key="FlipSurfaceDark">#1f1f1f</Color>
 </ResourceDictionary>
