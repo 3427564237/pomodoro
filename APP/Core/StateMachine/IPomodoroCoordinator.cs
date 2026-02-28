@@ -19,7 +19,12 @@ namespace APP.Core.StateMachine
         event Action? SessionEnded;
         event Action<RuntimeConfig>? ConfigChanged;
 
-        void StartFocus();
+        /// <summary>
+        /// Starts a session if the coordinator is idle.
+        /// 
+        /// 
+        bool RequestStartFocus();
+
         void StartFocus(int cycles, TimeSpan focusDuration, TimeSpan breakDuration);
         void Stop();
         void Pause();

@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using APP.Core.Config;
 using APP.Core.Models;
+using APP.Core.Navigation;
 using APP.Core.Services;
 
 namespace APP.Core.StateMachine
@@ -7,6 +9,7 @@ namespace APP.Core.StateMachine
     public class PomodoroStateMachine : IPomodoroCoordinator
     {
         private readonly ITimerEngine _timer;
+        private readonly IAppNavigator? _navigator;
         private readonly TimeSpan _overlayAutoDismiss;
 
         private volatile RuntimeConfig _config;
@@ -33,11 +36,18 @@ namespace APP.Core.StateMachine
         public RuntimeConfig Config => _config;
 
         public PomodoroStateMachine(ITimerEngine timer)
-            : this(timer, InteractionTimings.BreakPromptAutoDismiss) { }
+            : this(timer, null, InteractionTimings.BreakPromptAutoDismiss) { }
 
         public PomodoroStateMachine(ITimerEngine timer, TimeSpan overlayAutoDismiss)
+            : this(timer, null, overlayAutoDismiss) { }
+
+        public PomodoroStateMachine(ITimerEngine timer, IAppNavigator? navigator)
+            : this(timer, navigator, InteractionTimings.BreakPromptAutoDismiss) { }
+
+        public PomodoroStateMachine(ITimerEngine timer, IAppNavigator? navigator, TimeSpan overlayAutoDismiss)
         {
             _timer = timer;
+            _navigator = navigator;
             _overlayAutoDismiss = overlayAutoDismiss;
             _config = new RuntimeConfig(
                 InteractionTimings.DefaultCycles,
@@ -60,16 +70,33 @@ namespace APP.Core.StateMachine
             ConfigChanged?.Invoke(_config);
         }
 
-        public void StartFocus()
+        public bool RequestStartFocus()
         {
+            if (HasActiveSession) return false;
+
             var cfg = _config;
             StartFocusInternal(cfg.Cycles, cfg.FocusDuration);
+            _ = NavigateToCountdownAsync();
+            return true;
+        }
+
+        private async Task NavigateToCountdownAsync()
+        {
+            try
+            {
+                if (_navigator != null)
+                    await _navigator.GoToCountdownAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[PomodoroStateMachine] Navigation to Countdown failed: {ex.Message}");
+            }
         }
 
         public void StartFocus(int cycles, TimeSpan focusDuration, TimeSpan breakDuration)
         {
             UpdateConfig(cycles, focusDuration, breakDuration);
-            StartFocus();
+            StartFocusInternal(_config.Cycles, _config.FocusDuration);
         }
 
         private void StartFocusInternal(int cycles, TimeSpan focusDuration)
