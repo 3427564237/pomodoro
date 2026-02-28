@@ -1,4 +1,3 @@
-using APP.Core.Config;
 using APP.Core.Navigation;
 using APP.Core.StateMachine;
 
@@ -17,6 +16,18 @@ namespace APP.Features.Main
             _coordinator = coordinator;
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            ((MainViewModel)BindingContext).Activate();
+        }
+
+        protected override void OnDisappearing()
+        {
+            ((MainViewModel)BindingContext).Deactivate();
+            base.OnDisappearing();
+        }
+
         private async void OnSettingsClicked(object sender, EventArgs e)
             => await _navigator.GoToSettingsAsync();
 
@@ -25,10 +36,7 @@ namespace APP.Features.Main
 
         private async void OnStartClicked(object sender, EventArgs e)
         {
-            _coordinator.StartFocus(
-                InteractionTimings.DefaultCycles,
-                InteractionTimings.DefaultFocusDuration,
-                InteractionTimings.DefaultBreakDuration);
+            _coordinator.StartFocus();
             await _navigator.GoToCountdownAsync();
         }
 

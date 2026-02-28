@@ -1,3 +1,4 @@
+using APP.Core.Config;
 using APP.Core.Models;
 
 namespace APP.Core.StateMachine
@@ -10,17 +11,21 @@ namespace APP.Core.StateMachine
         TimerSnapshot CurrentSnapshot { get; }
         bool IsPaused { get; }
         bool HasActiveSession { get; }
+        RuntimeConfig Config { get; }
 
         event Action<PhaseState>? PhaseChanged;
         event Action<OverlayState>? OverlayChanged;
         event Action<TimerSnapshot>? TimerUpdated;
         event Action? SessionEnded;
+        event Action<RuntimeConfig>? ConfigChanged;
 
+        void StartFocus();
         void StartFocus(int cycles, TimeSpan focusDuration, TimeSpan breakDuration);
         void Stop();
         void Pause();
         void Resume();
         void Skip();
         void OverlayTapped();
+        void UpdateConfig(int cycles, TimeSpan focusDuration, TimeSpan breakDuration);
     }
 }

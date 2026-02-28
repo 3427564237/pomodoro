@@ -9,11 +9,10 @@ namespace APP.Core.StateMachine
         private readonly ITimerEngine _timer;
         private readonly TimeSpan _overlayAutoDismiss;
 
+        private volatile RuntimeConfig _config;
         private PhaseState _currentPhase = PhaseState.Idle;
         private OverlayState _currentOverlay = OverlayState.None;
         private int _cyclesRemaining;
-        private TimeSpan _focusDuration;
-        private TimeSpan _breakDuration;
         private TimerSnapshot _currentSnapshot;
         private bool _isPaused;
         private CancellationTokenSource? _overlayDismissCts;
@@ -23,6 +22,7 @@ namespace APP.Core.StateMachine
         public event Action<OverlayState>? OverlayChanged;
         public event Action<TimerSnapshot>? TimerUpdated;
         public event Action? SessionEnded;
+        public event Action<RuntimeConfig>? ConfigChanged;
 
         public PhaseState CurrentPhase => _currentPhase;
         public OverlayState CurrentOverlay => _currentOverlay;
@@ -30,6 +30,7 @@ namespace APP.Core.StateMachine
         public TimerSnapshot CurrentSnapshot => _currentSnapshot;
         public bool IsPaused => _isPaused;
         public bool HasActiveSession => _currentPhase != PhaseState.Idle;
+        public RuntimeConfig Config => _config;
 
         public PomodoroStateMachine(ITimerEngine timer)
             : this(timer, InteractionTimings.BreakPromptAutoDismiss) { }
@@ -38,11 +39,40 @@ namespace APP.Core.StateMachine
         {
             _timer = timer;
             _overlayAutoDismiss = overlayAutoDismiss;
+            _config = new RuntimeConfig(
+                InteractionTimings.DefaultCycles,
+                InteractionTimings.DefaultFocusDuration,
+                InteractionTimings.DefaultBreakDuration);
             _timer.Tick += OnTimerTick;
             _timer.Completed += OnTimerCompleted;
         }
 
+        public void UpdateConfig(int cycles, TimeSpan focusDuration, TimeSpan breakDuration)
+        {
+            if (cycles < 1)
+                throw new ArgumentOutOfRangeException(nameof(cycles));
+            if (focusDuration <= TimeSpan.Zero)
+                throw new ArgumentOutOfRangeException(nameof(focusDuration));
+            if (breakDuration <= TimeSpan.Zero)
+                throw new ArgumentOutOfRangeException(nameof(breakDuration));
+
+            _config = new RuntimeConfig(cycles, focusDuration, breakDuration);
+            ConfigChanged?.Invoke(_config);
+        }
+
+        public void StartFocus()
+        {
+            var cfg = _config;
+            StartFocusInternal(cfg.Cycles, cfg.FocusDuration);
+        }
+
         public void StartFocus(int cycles, TimeSpan focusDuration, TimeSpan breakDuration)
+        {
+            UpdateConfig(cycles, focusDuration, breakDuration);
+            StartFocus();
+        }
+
+        private void StartFocusInternal(int cycles, TimeSpan focusDuration)
         {
             if (cycles < 1)
                 throw new ArgumentOutOfRangeException(nameof(cycles));
@@ -52,8 +82,6 @@ namespace APP.Core.StateMachine
             _timer.Stop();
 
             _cyclesRemaining = cycles;
-            _focusDuration = focusDuration;
-            _breakDuration = breakDuration;
             _isPaused = false;
             _currentSnapshot = new TimerSnapshot(focusDuration, focusDuration, true);
 
@@ -139,10 +167,11 @@ namespace APP.Core.StateMachine
 
             if (_cyclesRemaining > 0)
             {
-                _currentSnapshot = new TimerSnapshot(_focusDuration, _focusDuration, true);
+                var focusDuration = _config.FocusDuration;
+                _currentSnapshot = new TimerSnapshot(focusDuration, focusDuration, true);
                 SetPhase(PhaseState.Focus);
                 SetOverlay(OverlayState.None);
-                _timer.Start(_focusDuration);
+                _timer.Start(focusDuration);
             }
             else
             {
@@ -183,9 +212,10 @@ namespace APP.Core.StateMachine
 
             if (overlay == OverlayState.HaveABreak)
             {
-                _currentSnapshot = new TimerSnapshot(_breakDuration, _breakDuration, true);
+                var breakDuration = _config.BreakDuration;
+                _currentSnapshot = new TimerSnapshot(breakDuration, breakDuration, true);
                 SetPhase(PhaseState.Break);
-                _timer.Start(_breakDuration);
+                _timer.Start(breakDuration);
             }
             else if (overlay == OverlayState.YouDidIt)
             {

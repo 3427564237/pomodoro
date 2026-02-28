@@ -46,12 +46,12 @@
                 <VerticalStackLayout HorizontalOptions="Center"
                                      VerticalOptions="Center"
                                      Spacing="4">
-                    <Label Text="25:00"
+                    <Label Text="{Binding TimerDisplay}"
                            TextColor="{StaticResource FlipOnPrimary}"
                            FontSize="62"
                            FontAttributes="Bold"
                            HorizontalTextAlignment="Center" />
-                    <Label Text="2 cycles · 5 min break"
+                    <Label Text="{Binding ConfigSummary}"
                            TextColor="{StaticResource FlipRingText}"
                            FontSize="13"
                            HorizontalTextAlignment="Center" />
