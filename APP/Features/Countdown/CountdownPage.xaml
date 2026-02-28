@@ -26,7 +26,7 @@
                         StrokeShape="RoundRectangle 136"
                         HorizontalOptions="Center" VerticalOptions="Center" />
 
-                <Label Text="25:00"
+                <Label Text="{Binding RemainingText}"
                        TextColor="{StaticResource FlipOnPrimary}"
                        FontSize="62"
                        FontAttributes="Bold"
@@ -47,9 +47,11 @@
                                Padding="0,0,0,32">
             <Button Text="Stop" Clicked="OnStopClicked"
                     WidthRequest="90" />
-            <Button Text="Pause" Clicked="OnPauseClicked"
+            <Button Text="{Binding PauseButtonText}" Clicked="OnPauseClicked"
+                    IsEnabled="{Binding AreControlsEnabled}"
                     WidthRequest="90" />
             <Button Text="Skip" Clicked="OnSkipClicked"
+                    IsEnabled="{Binding AreControlsEnabled}"
                     WidthRequest="90" />
         </HorizontalStackLayout>
     </Grid>

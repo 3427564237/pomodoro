@@ -1,16 +1,20 @@
+using APP.Core.Config;
 using APP.Core.Navigation;
+using APP.Core.StateMachine;
 
 namespace APP.Features.Main
 {
     public partial class MainPage : ContentPage
     {
         private readonly IAppNavigator _navigator;
+        private readonly IPomodoroCoordinator _coordinator;
 
-        public MainPage(MainViewModel viewModel, IAppNavigator navigator)
+        public MainPage(MainViewModel viewModel, IAppNavigator navigator, IPomodoroCoordinator coordinator)
         {
             InitializeComponent();
             BindingContext = viewModel;
             _navigator = navigator;
+            _coordinator = coordinator;
         }
 
         private async void OnSettingsClicked(object sender, EventArgs e)
@@ -20,7 +24,10 @@ namespace APP.Features.Main
             => await _navigator.GoToTimeSettingsAsync();
 
         private async void OnStartClicked(object sender, EventArgs e)
-            => await _navigator.GoToCountdownAsync();
+        {
+            _coordinator.StartTimer(InteractionTimings.DefaultFocusDuration);
+            await _navigator.GoToCountdownAsync();
+        }
 
         private async void OnCalendarClicked(object sender, EventArgs e)
             => await _navigator.GoToPlaceholderAsync("Calendar");

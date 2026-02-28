@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using APP.Core.Navigation;
+using APP.Core.Services;
+using APP.Core.StateMachine;
 using APP.Features.Main;
 using APP.Features.Countdown;
 using APP.Features.TimeSettings;
@@ -23,6 +25,10 @@ namespace APP
 
             // Navigation
             builder.Services.AddSingleton<IAppNavigator, AppNavigator>();
+
+            // Core services
+            builder.Services.AddSingleton<ITimerEngine, TimerEngine>();
+            builder.Services.AddSingleton<IPomodoroCoordinator, PomodoroStateMachine>();
 
             // Pages
             builder.Services.AddTransient<MainPage>();
