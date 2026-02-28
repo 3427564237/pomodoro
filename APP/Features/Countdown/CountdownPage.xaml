@@ -34,11 +34,40 @@
                        VerticalOptions="Center" />
             </Grid>
 
-            <Label Text="Focus"
+            <Label Text="{Binding PhaseLabel}"
                    TextColor="{StaticResource FlipMutedText}"
                    FontSize="16"
                    HorizontalOptions="Center" />
         </VerticalStackLayout>
+
+        <!-- Overlay (HaveABreak / YouDidIt) -->
+        <Grid Grid.Row="0"
+              IsVisible="{Binding IsOverlayVisible}"
+              BackgroundColor="{StaticResource FlipOverlayBackground}"
+              HorizontalOptions="Fill"
+              VerticalOptions="Fill"
+              ZIndex="10">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnOverlayTapped" />
+            </Grid.GestureRecognizers>
+
+            <VerticalStackLayout HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 Spacing="12">
+
+                <Border WidthRequest="160" HeightRequest="160"
+                        BackgroundColor="{StaticResource FlipRingInner}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 80"
+                        HorizontalOptions="Center" />
+
+                <Label Text="{Binding OverlayText}"
+                       TextColor="{StaticResource FlipOnPrimary}"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
 
         <!-- Bottom control buttons -->
         <HorizontalStackLayout Grid.Row="1"

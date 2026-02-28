@@ -17,19 +17,20 @@ namespace APP.Features.Countdown
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            ViewModel.NavigateToMainRequested += OnNavigateToMain;
             ViewModel.Activate();
         }
 
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
+            ViewModel.NavigateToMainRequested -= OnNavigateToMain;
             ViewModel.Deactivate();
         }
 
-        private async void OnStopClicked(object sender, EventArgs e)
+        private void OnStopClicked(object sender, EventArgs e)
         {
             ViewModel.RequestStop();
-            await _navigator.GoToMainAsync();
         }
 
         private void OnPauseClicked(object sender, EventArgs e)
@@ -40,6 +41,16 @@ namespace APP.Features.Countdown
         private void OnSkipClicked(object sender, EventArgs e)
         {
             ViewModel.RequestSkip();
+        }
+
+        private void OnOverlayTapped(object sender, TappedEventArgs e)
+        {
+            ViewModel.RequestOverlayTap();
+        }
+
+        private async void OnNavigateToMain()
+        {
+            await _navigator.GoToMainAsync();
         }
     }
 }

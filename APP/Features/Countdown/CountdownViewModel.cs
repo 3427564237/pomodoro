@@ -10,42 +10,49 @@ namespace APP.Features.Countdown
         private readonly IPomodoroCoordinator _coordinator;
         private string _remainingText = "00:00";
         private string _pauseButtonText = "Pause";
+        private string _phaseLabel = "Focus";
         private bool _isPaused;
         private bool _areControlsEnabled;
+        private bool _isOverlayVisible;
+        private string _overlayText = string.Empty;
 
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event Action? NavigateToMainRequested;
 
         public string RemainingText
         {
             get => _remainingText;
-            private set
-            {
-                if (_remainingText == value) return;
-                _remainingText = value;
-                OnPropertyChanged();
-            }
+            private set { if (_remainingText != value) { _remainingText = value; OnPropertyChanged(); } }
         }
 
         public string PauseButtonText
         {
             get => _pauseButtonText;
-            private set
-            {
-                if (_pauseButtonText == value) return;
-                _pauseButtonText = value;
-                OnPropertyChanged();
-            }
+            private set { if (_pauseButtonText != value) { _pauseButtonText = value; OnPropertyChanged(); } }
+        }
+
+        public string PhaseLabel
+        {
+            get => _phaseLabel;
+            private set { if (_phaseLabel != value) { _phaseLabel = value; OnPropertyChanged(); } }
         }
 
         public bool AreControlsEnabled
         {
             get => _areControlsEnabled;
-            private set
-            {
-                if (_areControlsEnabled == value) return;
-                _areControlsEnabled = value;
-                OnPropertyChanged();
-            }
+            private set { if (_areControlsEnabled != value) { _areControlsEnabled = value; OnPropertyChanged(); } }
+        }
+
+        public bool IsOverlayVisible
+        {
+            get => _isOverlayVisible;
+            private set { if (_isOverlayVisible != value) { _isOverlayVisible = value; OnPropertyChanged(); } }
+        }
+
+        public string OverlayText
+        {
+            get => _overlayText;
+            private set { if (_overlayText != value) { _overlayText = value; OnPropertyChanged(); } }
         }
 
         public CountdownViewModel(IPomodoroCoordinator coordinator)
@@ -56,53 +63,67 @@ namespace APP.Features.Countdown
         public void Activate()
         {
             _coordinator.TimerUpdated -= OnTimerUpdated;
-            _coordinator.TimerCompleted -= OnTimerCompleted;
+            _coordinator.PhaseChanged -= OnPhaseChanged;
+            _coordinator.OverlayChanged -= OnOverlayChanged;
+            _coordinator.SessionEnded -= OnSessionEnded;
+
             _coordinator.TimerUpdated += OnTimerUpdated;
-            _coordinator.TimerCompleted += OnTimerCompleted;
+            _coordinator.PhaseChanged += OnPhaseChanged;
+            _coordinator.OverlayChanged += OnOverlayChanged;
+            _coordinator.SessionEnded += OnSessionEnded;
 
-            var hasSession = _coordinator.HasActiveSession;
-            AreControlsEnabled = hasSession;
-
-            var snapshot = _coordinator.CurrentSnapshot;
-            _isPaused = _coordinator.IsPaused;
-            PauseButtonText = _isPaused ? "Resume" : "Pause";
-            RemainingText = hasSession ? FormatTime(snapshot.Remaining) : "00:00";
+            SyncFromCoordinator();
         }
 
         public void Deactivate()
         {
             _coordinator.TimerUpdated -= OnTimerUpdated;
-            _coordinator.TimerCompleted -= OnTimerCompleted;
+            _coordinator.PhaseChanged -= OnPhaseChanged;
+            _coordinator.OverlayChanged -= OnOverlayChanged;
+            _coordinator.SessionEnded -= OnSessionEnded;
         }
 
         public void TogglePause()
         {
             if (!_coordinator.HasActiveSession) return;
+
             if (_isPaused)
-            {
-                _coordinator.ResumeTimer();
-                _isPaused = false;
-                PauseButtonText = "Pause";
-            }
+                _coordinator.Resume();
             else
-            {
-                _coordinator.PauseTimer();
-                _isPaused = true;
-                PauseButtonText = "Resume";
-            }
+                _coordinator.Pause();
+
+            // Sync from SoT — coordinator may reject the request (e.g. during overlay)
+            _isPaused = _coordinator.IsPaused;
+            PauseButtonText = _isPaused ? "Resume" : "Pause";
         }
 
         public void RequestStop()
         {
-            _coordinator.StopTimer();
-            AreControlsEnabled = false;
+            _coordinator.Stop();
         }
 
         public void RequestSkip()
         {
             if (!_coordinator.HasActiveSession) return;
-            _coordinator.SkipTimer();
-            AreControlsEnabled = false;
+            _coordinator.Skip();
+        }
+
+        public void RequestOverlayTap()
+        {
+            _coordinator.OverlayTapped();
+        }
+
+        private void SyncFromCoordinator()
+        {
+            var hasSession = _coordinator.HasActiveSession;
+            var overlay = _coordinator.CurrentOverlay;
+
+            _isPaused = _coordinator.IsPaused;
+            PauseButtonText = _isPaused ? "Resume" : "Pause";
+            PhaseLabel = _coordinator.CurrentPhase == PhaseState.Break ? "Break" : "Focus";
+            AreControlsEnabled = hasSession && overlay == OverlayState.None;
+            RemainingText = hasSession ? FormatTime(_coordinator.CurrentSnapshot.Remaining) : "00:00";
+            ApplyOverlayState(overlay);
         }
 
         private void OnTimerUpdated(TimerSnapshot snapshot)
@@ -113,15 +134,53 @@ namespace APP.Features.Countdown
             });
         }
 
-        private void OnTimerCompleted()
+        private void OnPhaseChanged(PhaseState phase)
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                RemainingText = "00:00";
-                PauseButtonText = "Pause";
-                _isPaused = false;
-                AreControlsEnabled = false;
+                PhaseLabel = phase == PhaseState.Break ? "Break" : "Focus";
+                AreControlsEnabled = phase != PhaseState.Idle
+                                     && _coordinator.CurrentOverlay == OverlayState.None;
             });
+        }
+
+        private void OnOverlayChanged(OverlayState overlay)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                ApplyOverlayState(overlay);
+                AreControlsEnabled = _coordinator.HasActiveSession
+                                     && overlay == OverlayState.None;
+            });
+        }
+
+        private void OnSessionEnded()
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                AreControlsEnabled = false;
+                IsOverlayVisible = false;
+                NavigateToMainRequested?.Invoke();
+            });
+        }
+
+        private void ApplyOverlayState(OverlayState overlay)
+        {
+            switch (overlay)
+            {
+                case OverlayState.HaveABreak:
+                    OverlayText = "Have a break";
+                    IsOverlayVisible = true;
+                    break;
+                case OverlayState.YouDidIt:
+                    OverlayText = "You did it";
+                    IsOverlayVisible = true;
+                    break;
+                default:
+                    IsOverlayVisible = false;
+                    OverlayText = string.Empty;
+                    break;
+            }
         }
 
         private static string FormatTime(TimeSpan ts)

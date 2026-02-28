@@ -51,4 +51,5 @@
     <Color x:Key="FlipTransparent">Transparent</Color>
     <Color x:Key="FlipSurface">White</Color>
     <Color x:Key="FlipSurfaceDark">#1f1f1f</Color>
+    <Color x:Key="FlipOverlayBackground">#CC3A2D6B</Color>
 </ResourceDictionary>

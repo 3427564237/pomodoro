@@ -1,3 +1,4 @@
+using APP.Core.Config;
 using APP.Core.Models;
 using APP.Core.Services;
 
@@ -6,36 +7,77 @@ namespace APP.Core.StateMachine
     public class PomodoroStateMachine : IPomodoroCoordinator
     {
         private readonly ITimerEngine _timer;
+        private readonly TimeSpan _overlayAutoDismiss;
+
+        private PhaseState _currentPhase = PhaseState.Idle;
+        private OverlayState _currentOverlay = OverlayState.None;
+        private int _cyclesRemaining;
+        private TimeSpan _focusDuration;
+        private TimeSpan _breakDuration;
         private TimerSnapshot _currentSnapshot;
         private bool _isPaused;
+        private CancellationTokenSource? _overlayDismissCts;
+        private int _overlayDismissGuard; // 0 = open, 1 = claimed (Interlocked)
 
+        public event Action<PhaseState>? PhaseChanged;
+        public event Action<OverlayState>? OverlayChanged;
         public event Action<TimerSnapshot>? TimerUpdated;
-        public event Action? TimerCompleted;
+        public event Action? SessionEnded;
 
+        public PhaseState CurrentPhase => _currentPhase;
+        public OverlayState CurrentOverlay => _currentOverlay;
+        public int CyclesRemaining => _cyclesRemaining;
         public TimerSnapshot CurrentSnapshot => _currentSnapshot;
         public bool IsPaused => _isPaused;
-        public bool HasActiveSession => _hasActiveSession;
-
-        private bool _hasActiveSession;
+        public bool HasActiveSession => _currentPhase != PhaseState.Idle;
 
         public PomodoroStateMachine(ITimerEngine timer)
+            : this(timer, InteractionTimings.BreakPromptAutoDismiss) { }
+
+        public PomodoroStateMachine(ITimerEngine timer, TimeSpan overlayAutoDismiss)
         {
             _timer = timer;
+            _overlayAutoDismiss = overlayAutoDismiss;
             _timer.Tick += OnTimerTick;
             _timer.Completed += OnTimerCompleted;
         }
 
-        public void StartTimer(TimeSpan duration)
+        public void StartFocus(int cycles, TimeSpan focusDuration, TimeSpan breakDuration)
         {
+            if (cycles < 1)
+                throw new ArgumentOutOfRangeException(nameof(cycles));
+
+            CancelOverlayTimer();
+            Volatile.Write(ref _overlayDismissGuard, 1);
+            _timer.Stop();
+
+            _cyclesRemaining = cycles;
+            _focusDuration = focusDuration;
+            _breakDuration = breakDuration;
             _isPaused = false;
-            _hasActiveSession = true;
-            _currentSnapshot = new TimerSnapshot(duration, duration, true);
-            _timer.Start(duration);
+            _currentSnapshot = new TimerSnapshot(focusDuration, focusDuration, true);
+
+            SetPhase(PhaseState.Focus);
+            SetOverlay(OverlayState.None);
+            _timer.Start(focusDuration);
         }
 
-        public void PauseTimer()
+        public void Stop()
         {
-            if (!_hasActiveSession) return;
+            if (_currentPhase == PhaseState.Idle) return;
+
+            CancelOverlayTimer();
+            Volatile.Write(ref _overlayDismissGuard, 1);
+            _timer.Stop();
+            ResetSession();
+            SessionEnded?.Invoke();
+        }
+
+        public void Pause()
+        {
+            if (_currentPhase == PhaseState.Idle) return;
+            if (_currentOverlay != OverlayState.None) return;
+
             _timer.Pause();
             _isPaused = true;
             _currentSnapshot = new TimerSnapshot(
@@ -43,27 +85,28 @@ namespace APP.Core.StateMachine
             TimerUpdated?.Invoke(_currentSnapshot);
         }
 
-        public void ResumeTimer()
+        public void Resume()
         {
-            if (!_hasActiveSession) return;
+            if (_currentPhase == PhaseState.Idle) return;
+            if (!_isPaused) return;
+
             _timer.Resume();
             _isPaused = false;
         }
 
-        public void StopTimer()
+        public void Skip()
         {
-            _timer.Stop();
+            if (_currentPhase == PhaseState.Idle) return;
+            if (_currentOverlay != OverlayState.None) return;
+
             _isPaused = false;
-            _hasActiveSession = false;
-            _currentSnapshot = default;
+            _timer.Skip();
         }
 
-        public void SkipTimer()
+        public void OverlayTapped()
         {
-            if (!_hasActiveSession) return;
-            _isPaused = false;
-            _hasActiveSession = false;
-            _timer.Skip();
+            if (_currentOverlay == OverlayState.None) return;
+            DismissOverlayAndProceed();
         }
 
         private void OnTimerTick(TimerSnapshot snapshot)
@@ -75,8 +118,111 @@ namespace APP.Core.StateMachine
         private void OnTimerCompleted()
         {
             _isPaused = false;
-            _hasActiveSession = false;
-            TimerCompleted?.Invoke();
+
+            if (_currentPhase == PhaseState.Focus)
+                OnFocusCompleted();
+            else if (_currentPhase == PhaseState.Break)
+                OnBreakCompleted();
+        }
+
+        private void OnFocusCompleted()
+        {
+            if (_cyclesRemaining > 1)
+                ShowOverlayWithAutoDismiss(OverlayState.HaveABreak);
+            else
+                ShowOverlayWithAutoDismiss(OverlayState.YouDidIt);
+        }
+
+        private void OnBreakCompleted()
+        {
+            _cyclesRemaining--;
+
+            if (_cyclesRemaining > 0)
+            {
+                _currentSnapshot = new TimerSnapshot(_focusDuration, _focusDuration, true);
+                SetPhase(PhaseState.Focus);
+                SetOverlay(OverlayState.None);
+                _timer.Start(_focusDuration);
+            }
+            else
+            {
+                ShowOverlayWithAutoDismiss(OverlayState.YouDidIt);
+            }
+        }
+
+        private void ShowOverlayWithAutoDismiss(OverlayState overlay)
+        {
+            CancelOverlayTimer();
+            Volatile.Write(ref _overlayDismissGuard, 0);
+            SetOverlay(overlay);
+
+            _overlayDismissCts = new CancellationTokenSource();
+            var ct = _overlayDismissCts.Token;
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(_overlayAutoDismiss, ct);
+                    if (!ct.IsCancellationRequested)
+                        DismissOverlayAndProceed();
+                }
+                catch (OperationCanceledException) { }
+            });
+        }
+
+        private void DismissOverlayAndProceed()
+        {
+            if (Interlocked.CompareExchange(ref _overlayDismissGuard, 1, 0) != 0)
+                return;
+
+            var overlay = _currentOverlay;
+            if (overlay == OverlayState.None) return;
+
+            CancelOverlayTimer();
+            SetOverlay(OverlayState.None);
+
+            if (overlay == OverlayState.HaveABreak)
+            {
+                _currentSnapshot = new TimerSnapshot(_breakDuration, _breakDuration, true);
+                SetPhase(PhaseState.Break);
+                _timer.Start(_breakDuration);
+            }
+            else if (overlay == OverlayState.YouDidIt)
+            {
+                ResetSession();
+                SessionEnded?.Invoke();
+            }
+        }
+
+        private void ResetSession()
+        {
+            _currentOverlay = OverlayState.None;
+            _cyclesRemaining = 0;
+            _isPaused = false;
+            _currentSnapshot = default;
+
+            SetPhase(PhaseState.Idle);
+        }
+
+        private void SetPhase(PhaseState phase)
+        {
+            if (_currentPhase == phase) return;
+            _currentPhase = phase;
+            PhaseChanged?.Invoke(phase);
+        }
+
+        private void SetOverlay(OverlayState overlay)
+        {
+            if (_currentOverlay == overlay) return;
+            _currentOverlay = overlay;
+            OverlayChanged?.Invoke(overlay);
+        }
+
+        private void CancelOverlayTimer()
+        {
+            _overlayDismissCts?.Cancel();
+            _overlayDismissCts?.Dispose();
+            _overlayDismissCts = null;
         }
     }
 }

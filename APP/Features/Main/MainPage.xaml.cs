@@ -25,7 +25,10 @@ namespace APP.Features.Main
 
         private async void OnStartClicked(object sender, EventArgs e)
         {
-            _coordinator.StartTimer(InteractionTimings.DefaultFocusDuration);
+            _coordinator.StartFocus(
+                InteractionTimings.DefaultCycles,
+                InteractionTimings.DefaultFocusDuration,
+                InteractionTimings.DefaultBreakDuration);
             await _navigator.GoToCountdownAsync();
         }
 
