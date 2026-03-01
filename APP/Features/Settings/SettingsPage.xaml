@@ -5,15 +5,26 @@
              Title="Settings">
 
     <VerticalStackLayout Padding="24" Spacing="24"
-                         VerticalOptions="Center"
-                         HorizontalOptions="Center">
+                         VerticalOptions="Start"
+                         HorizontalOptions="Fill">
 
         <Label Text="Settings"
                FontSize="24"
                FontAttributes="Bold"
                HorizontalOptions="Center" />
 
-        <Label Text="Strict Mode / Vibration / Theme toggles will go here."
+        <!-- Strict Mode toggle -->
+        <Grid ColumnDefinitions="*,Auto" Padding="0,12">
+            <Label Text="Strict Mode"
+                   FontSize="16"
+                   VerticalOptions="Center"
+                   Grid.Column="0" />
+            <Switch IsToggled="{Binding StrictModeEnabled}"
+                    Grid.Column="1"
+                    VerticalOptions="Center" />
+        </Grid>
+
+        <Label Text="More settings coming soon (Vibration, Theme, etc.)"
                FontSize="14"
                TextColor="{StaticResource Gray400}"
                HorizontalOptions="Center"

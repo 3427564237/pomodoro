@@ -28,10 +28,12 @@ namespace APP
 
             // Core services
             builder.Services.AddSingleton<ITimerEngine, TimerEngine>();
+            builder.Services.AddSingleton<IHapticsService, APP.Platforms.Android.HapticsService>();
             builder.Services.AddSingleton<IPomodoroCoordinator>(sp =>
                 new PomodoroStateMachine(
                     sp.GetRequiredService<ITimerEngine>(),
-                    sp.GetRequiredService<IAppNavigator>()));
+                    sp.GetRequiredService<IAppNavigator>(),
+                    sp.GetRequiredService<IHapticsService>()));
 
             // Flip sensor (Android implementation)
             builder.Services.AddSingleton<IFlipSensorService, APP.Platforms.Android.FlipSensorService>();

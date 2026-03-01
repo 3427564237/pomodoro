@@ -32,5 +32,23 @@ namespace APP.Core.StateMachine
         void Skip();
         void OverlayTapped();
         void UpdateConfig(int cycles, TimeSpan focusDuration, TimeSpan breakDuration);
+
+        /// <summary>Updates the strict-mode setting.
+        void UpdateStrictMode(bool enabled);
+
+        /// <summary>
+        /// Notifies the coordinator that the device has been flipped face up.
+        /// If Strict ON and Focus/Break active, triggers PutMeDown overlay.
+        /// 
+        void OnFlipUpDetected();
+
+        /// <summary>
+        /// Notifies the coordinator that the device has been flipped face down.
+        /// 
+        /// 
+        void OnFlipDownDetected();
+
+        /// <summary>
+        void PutMeDownTapped();
     }
 }

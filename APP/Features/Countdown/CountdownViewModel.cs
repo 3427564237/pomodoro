@@ -113,6 +113,11 @@ namespace APP.Features.Countdown
             _coordinator.OverlayTapped();
         }
 
+        public void RequestPutMeDownTap()
+        {
+            _coordinator.PutMeDownTapped();
+        }
+
         private void SyncFromCoordinator()
         {
             var hasSession = _coordinator.HasActiveSession;
@@ -168,6 +173,10 @@ namespace APP.Features.Countdown
         {
             switch (overlay)
             {
+                case OverlayState.PutMeDown:
+                    OverlayText = "Put me down";
+                    IsOverlayVisible = true;
+                    break;
                 case OverlayState.HaveABreak:
                     OverlayText = "Have a break";
                     IsOverlayVisible = true;
