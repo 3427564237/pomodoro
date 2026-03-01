@@ -73,7 +73,8 @@
         <HorizontalStackLayout Grid.Row="1"
                                HorizontalOptions="Center"
                                Spacing="24"
-                               Padding="0,0,0,32">
+                               Padding="0,0,0,32"
+                               IsVisible="{Binding IsControlsPanelVisible}">
             <Button Text="Stop" Clicked="OnStopClicked"
                     WidthRequest="90" />
             <Button Text="{Binding PauseButtonText}" Clicked="OnPauseClicked"

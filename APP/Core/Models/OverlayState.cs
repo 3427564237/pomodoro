@@ -5,6 +5,7 @@ namespace APP.Core.Models
         None,
         PutMeDown,
         HaveABreak,
-        YouDidIt
+        YouDidIt,
+        BackToFocus
     }
 }

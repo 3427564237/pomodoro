@@ -5,6 +5,7 @@ namespace APP.Core.Config
         public static readonly TimeSpan PutMeDownGrace = TimeSpan.FromSeconds(5);
         public static readonly TimeSpan PutMeDownAutoDismiss = TimeSpan.FromSeconds(5);
         public static readonly TimeSpan BreakPromptAutoDismiss = TimeSpan.FromSeconds(3);
+        public static readonly TimeSpan BackToFocusFaceUpGrace = TimeSpan.FromSeconds(3);
         public static readonly TimeSpan FlipDebounce = TimeSpan.FromMilliseconds(300);
         public static readonly TimeSpan FlipCooldown = TimeSpan.FromMilliseconds(500);
         public static readonly TimeSpan TimerTickInterval = TimeSpan.FromMilliseconds(250);
@@ -15,5 +16,13 @@ namespace APP.Core.Config
         // Flip detection thresholds (accelerometer Z-axis, normalized to g)
         public static readonly double FaceDownThreshold = -0.8;
         public static readonly double FaceUpThreshold = 0.8;
+
+        /// <summary>
+        /// When confirmed FaceDown, readings above this threshold are considered
+        /// "lifted" (covers upright/vertical holding). Provides hysteresis so
+        /// slight tilts from face-down (e.g. desk bump) don't false-trigger.
+        /// Value chosen so phone must tilt ~73° from face-down before triggering.
+        /// 
+        public static readonly double LiftedFromDownThreshold = -0.3;
     }
 }

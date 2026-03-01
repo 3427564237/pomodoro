@@ -46,8 +46,18 @@ namespace APP.Features.Countdown
         public bool IsOverlayVisible
         {
             get => _isOverlayVisible;
-            private set { if (_isOverlayVisible != value) { _isOverlayVisible = value; OnPropertyChanged(); } }
+            private set
+            {
+                if (_isOverlayVisible != value)
+                {
+                    _isOverlayVisible = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsControlsPanelVisible));
+                }
+            }
         }
+
+        public bool IsControlsPanelVisible => !_isOverlayVisible;
 
         public string OverlayText
         {
@@ -118,6 +128,11 @@ namespace APP.Features.Countdown
             _coordinator.PutMeDownTapped();
         }
 
+        public void RequestBackToFocusTap()
+        {
+            _coordinator.BackToFocusTapped();
+        }
+
         private void SyncFromCoordinator()
         {
             var hasSession = _coordinator.HasActiveSession;
@@ -183,6 +198,10 @@ namespace APP.Features.Countdown
                     break;
                 case OverlayState.YouDidIt:
                     OverlayText = "You did it";
+                    IsOverlayVisible = true;
+                    break;
+                case OverlayState.BackToFocus:
+                    OverlayText = "Back to focus";
                     IsOverlayVisible = true;
                     break;
                 default:

@@ -120,9 +120,11 @@ namespace APP.Features.Countdown
 
         private void OnOverlayTapped(object sender, TappedEventArgs e)
         {
-            // Route to appropriate handler based on current overlay type
-            if (_coordinator.CurrentOverlay == APP.Core.Models.OverlayState.PutMeDown)
+            var overlay = _coordinator.CurrentOverlay;
+            if (overlay == APP.Core.Models.OverlayState.PutMeDown)
                 ViewModel.RequestPutMeDownTap();
+            else if (overlay == APP.Core.Models.OverlayState.BackToFocus)
+                ViewModel.RequestBackToFocusTap();
             else
                 ViewModel.RequestOverlayTap();
         }

@@ -12,6 +12,7 @@ namespace APP.Platforms.Android
 
         public event Action? FlipDownDetected;
         public event Action? FlipUpDetected;
+        public FlipOrientation CurrentOrientation => _detector.CurrentOrientation;
 
         public FlipSensorService()
         {

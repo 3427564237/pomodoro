@@ -13,6 +13,7 @@ namespace APP.Core.StateMachine
         private readonly IHapticsService? _haptics;
         private readonly TimeSpan _overlayAutoDismiss;
         private readonly TimeSpan _putMeDownAutoDismiss;
+        private readonly TimeSpan _faceUpGraceDelay;
 
         private volatile RuntimeConfig _config;
         private PhaseState _currentPhase = PhaseState.Idle;
@@ -21,7 +22,9 @@ namespace APP.Core.StateMachine
         private TimerSnapshot _currentSnapshot;
         private bool _isPaused;
         private CancellationTokenSource? _overlayDismissCts;
+        private CancellationTokenSource? _faceUpGraceCts;
         private int _overlayDismissGuard; // 0 = open, 1 = claimed (Interlocked)
+        private bool _lastFlipWasUp;
 
         public event Action<PhaseState>? PhaseChanged;
         public event Action<OverlayState>? OverlayChanged;
@@ -74,13 +77,15 @@ namespace APP.Core.StateMachine
         public PomodoroStateMachine(ITimerEngine timer, IAppNavigator? navigator,
                                     IHapticsService? haptics,
                                     TimeSpan overlayAutoDismiss,
-                                    TimeSpan putMeDownAutoDismiss)
+                                    TimeSpan putMeDownAutoDismiss,
+                                    TimeSpan? faceUpGraceDelay = null)
         {
             _timer = timer;
             _navigator = navigator;
             _haptics = haptics;
             _overlayAutoDismiss = overlayAutoDismiss;
             _putMeDownAutoDismiss = putMeDownAutoDismiss;
+            _faceUpGraceDelay = faceUpGraceDelay ?? InteractionTimings.BackToFocusFaceUpGrace;
             _config = new RuntimeConfig(
                 InteractionTimings.DefaultCycles,
                 InteractionTimings.DefaultFocusDuration,
@@ -150,6 +155,7 @@ namespace APP.Core.StateMachine
             if (cycles < 1)
                 throw new ArgumentOutOfRangeException(nameof(cycles));
 
+            CancelFaceUpGraceCheck();
             CancelOverlayTimer();
             Volatile.Write(ref _overlayDismissGuard, 1);
             _timer.Stop();
@@ -167,6 +173,7 @@ namespace APP.Core.StateMachine
         {
             if (_currentPhase == PhaseState.Idle) return;
 
+            CancelFaceUpGraceCheck();
             CancelOverlayTimer();
             Volatile.Write(ref _overlayDismissGuard, 1);
             _timer.Stop();
@@ -222,15 +229,19 @@ namespace APP.Core.StateMachine
 
         public void OnFlipUpDetected()
         {
+            _lastFlipWasUp = true;
+
             if (!_config.StrictModeEnabled) return;
-            if (_currentPhase != PhaseState.Focus && _currentPhase != PhaseState.Break) return;
-            if (_currentOverlay != OverlayState.None) return;
+            if (_currentPhase != PhaseState.Focus) return;
+            if (_currentOverlay != OverlayState.None && _currentOverlay != OverlayState.BackToFocus) return;
 
             ShowPutMeDown();
         }
 
         public void OnFlipDownDetected()
         {
+            _lastFlipWasUp = false;
+
             if (_currentOverlay != OverlayState.PutMeDown) return;
             DismissPutMeDown();
         }
@@ -241,8 +252,15 @@ namespace APP.Core.StateMachine
             DismissPutMeDown();
         }
 
+        public void BackToFocusTapped()
+        {
+            if (_currentOverlay != OverlayState.BackToFocus) return;
+            DismissOverlayAndProceed();
+        }
+
         private void ShowPutMeDown()
         {
+            CancelFaceUpGraceCheck();
             CancelOverlayTimer();
             Volatile.Write(ref _overlayDismissGuard, 0);
             SetOverlay(OverlayState.PutMeDown);
@@ -318,8 +336,9 @@ namespace APP.Core.StateMachine
                 var focusDuration = _config.FocusDuration;
                 _currentSnapshot = new TimerSnapshot(focusDuration, focusDuration, true);
                 SetPhase(PhaseState.Focus);
-                SetOverlay(OverlayState.None);
                 _timer.Start(focusDuration);
+                _haptics?.PlayShortBuzz();
+                ShowOverlayWithAutoDismiss(OverlayState.BackToFocus);
             }
             else
             {
@@ -370,6 +389,11 @@ namespace APP.Core.StateMachine
                 ResetSession();
                 SessionEnded?.Invoke();
             }
+            else if (overlay == OverlayState.BackToFocus)
+            {
+                // Focus timer is already running — start face-up grace check
+                StartFaceUpGraceCheck();
+            }
         }
 
         private void ResetSession()
@@ -401,6 +425,40 @@ namespace APP.Core.StateMachine
             _overlayDismissCts?.Cancel();
             _overlayDismissCts?.Dispose();
             _overlayDismissCts = null;
+        }
+
+        private void StartFaceUpGraceCheck()
+        {
+            CancelFaceUpGraceCheck();
+            if (!_config.StrictModeEnabled) return;
+            if (_currentPhase != PhaseState.Focus) return;
+
+            _faceUpGraceCts = new CancellationTokenSource();
+            var ct = _faceUpGraceCts.Token;
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(_faceUpGraceDelay, ct);
+                    if (ct.IsCancellationRequested) return;
+
+                    if (_lastFlipWasUp
+                        && _config.StrictModeEnabled
+                        && _currentPhase == PhaseState.Focus
+                        && _currentOverlay == OverlayState.None)
+                    {
+                        ShowPutMeDown();
+                    }
+                }
+                catch (OperationCanceledException) { }
+            });
+        }
+
+        private void CancelFaceUpGraceCheck()
+        {
+            _faceUpGraceCts?.Cancel();
+            _faceUpGraceCts?.Dispose();
+            _faceUpGraceCts = null;
         }
     }
 }

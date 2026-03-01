@@ -18,6 +18,7 @@ namespace APP.Core.Services
     {
         private readonly double _faceDownThreshold;
         private readonly double _faceUpThreshold;
+        private readonly double _liftedFromDownThreshold;
         private readonly TimeSpan _debounce;
         private readonly TimeSpan _cooldown;
 
@@ -36,15 +37,18 @@ namespace APP.Core.Services
             : this(
                   InteractionTimings.FaceDownThreshold,
                   InteractionTimings.FaceUpThreshold,
+                  InteractionTimings.LiftedFromDownThreshold,
                   InteractionTimings.FlipDebounce,
                   InteractionTimings.FlipCooldown)
         { }
 
         public FlipDetector(double faceDownThreshold, double faceUpThreshold,
+                            double liftedFromDownThreshold,
                             TimeSpan debounce, TimeSpan cooldown)
         {
             _faceDownThreshold = faceDownThreshold;
             _faceUpThreshold = faceUpThreshold;
+            _liftedFromDownThreshold = liftedFromDownThreshold;
             _debounce = debounce;
             _cooldown = cooldown;
         }
@@ -111,8 +115,17 @@ namespace APP.Core.Services
         {
             if (z <= _faceDownThreshold)
                 return FlipOrientation.FaceDown;
+
+            // Asymmetric: when confirmed FaceDown, any reading above the
+            // "lifted" threshold counts as FaceUp — covers upright/vertical
+            // holding (z ≈ 0) in addition to full face-up (z ≈ +1).
+            if (_confirmedOrientation == FlipOrientation.FaceDown
+                && z > _liftedFromDownThreshold)
+                return FlipOrientation.FaceUp;
+
             if (z >= _faceUpThreshold)
                 return FlipOrientation.FaceUp;
+
             return FlipOrientation.Unknown;
         }
     }

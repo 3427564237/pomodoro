@@ -38,7 +38,8 @@ namespace APP.Core.StateMachine
 
         /// <summary>
         /// Notifies the coordinator that the device has been flipped face up.
-        /// If Strict ON and Focus/Break active, triggers PutMeDown overlay.
+        /// 
+        /// 
         /// 
         void OnFlipUpDetected();
 
@@ -50,5 +51,8 @@ namespace APP.Core.StateMachine
 
         /// <summary>
         void PutMeDownTapped();
+
+        /// <summary>User tapped the BackToFocus overlay — dismiss immediately.
+        void BackToFocusTapped();
     }
 }
