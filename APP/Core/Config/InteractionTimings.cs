@@ -2,6 +2,7 @@ namespace APP.Core.Config
 {
     public static class InteractionTimings
     {
+        // These values mostly tune overlay timing and flip detection feel.
         public static readonly TimeSpan PutMeDownGrace = TimeSpan.FromSeconds(5);
         public static readonly TimeSpan PutMeDownAutoDismiss = TimeSpan.FromSeconds(5);
         public static readonly TimeSpan BreakPromptAutoDismiss = TimeSpan.FromSeconds(3);
@@ -13,13 +14,9 @@ namespace APP.Core.Config
         public static readonly TimeSpan DefaultBreakDuration = TimeSpan.FromMinutes(5);
         public static readonly int DefaultCycles = 2;
 
-        // Flip detection thresholds (accelerometer Z-axis, normalized to g)
+        // Z-axis thresholds from the accelerometer.
         public static readonly double FaceDownThreshold = -0.8;
         public static readonly double FaceUpThreshold = 0.8;
-
-        /// <summary>
-        /// Threshold used to treat an upright device as face-up.
-        /// 
         public static readonly double LiftedFromDownThreshold = -0.3;
     }
 }

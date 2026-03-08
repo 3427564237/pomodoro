@@ -24,14 +24,10 @@ namespace APP
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            // Navigation
+            // Keep navigation and state machine shared for the whole app lifetime.
             builder.Services.AddSingleton<IAppNavigator, AppNavigator>();
-
-            // Core services
             builder.Services.AddSingleton<ITimerEngine, TimerEngine>();
             builder.Services.AddSingleton<IHapticsService, APP.Platforms.Android.HapticsService>();
-
-            // Flip sensor (Android implementation)
             builder.Services.AddSingleton<IFlipSensorService, APP.Platforms.Android.FlipSensorService>();
 
             builder.Services.AddSingleton<IPomodoroCoordinator>(sp =>
@@ -46,14 +42,12 @@ namespace APP
                     isFaceUpQuery: () => flipSensor.CurrentOrientation == FlipOrientation.FaceUp);
             });
 
-            // Pages
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<CountdownPage>();
             builder.Services.AddTransient<TimeSettingsPage>();
             builder.Services.AddTransient<SettingsPage>();
             builder.Services.AddTransient<PlaceholderPage>();
 
-            // ViewModels
             builder.Services.AddTransient<MainViewModel>();
             builder.Services.AddTransient<CountdownViewModel>();
             builder.Services.AddTransient<TimeSettingsViewModel>();

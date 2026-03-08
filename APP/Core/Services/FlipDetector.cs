@@ -9,9 +9,6 @@ namespace APP.Core.Services
         FaceUp
     }
 
-    /// <summary>
-    /// Detects face-up and face-down transitions from accelerometer readings.
-    /// 
     public sealed class FlipDetector
     {
         private readonly double _faceDownThreshold;
@@ -28,9 +25,6 @@ namespace APP.Core.Services
         public event Action? FlipDownDetected;
         public event Action? FlipUpDetected;
 
-        /// <summary>
-        /// Gets the current debounced orientation.
-        /// 
         public FlipOrientation CurrentOrientation => _confirmedOrientation;
 
         public FlipDetector()
@@ -53,9 +47,6 @@ namespace APP.Core.Services
             _cooldown = cooldown;
         }
 
-        /// <summary>
-        /// Processes a new accelerometer reading.
-        /// 
         public void OnAccelerometerReading(double zNormalized, DateTimeOffset timestamp)
         {
             var raw = ClassifyRaw(zNormalized);
@@ -95,9 +86,6 @@ namespace APP.Core.Services
                 FlipUpDetected?.Invoke();
         }
 
-        /// <summary>
-        /// Resets the detector state.
-        /// 
         public void Reset()
         {
             _confirmedOrientation = FlipOrientation.Unknown;
@@ -110,8 +98,7 @@ namespace APP.Core.Services
             if (z <= _faceDownThreshold)
                 return FlipOrientation.FaceDown;
 
-            // Treat upright readings as face-up when starting from unknown
-            // or after a confirmed face-down state.
+            // A phone coming back up from the table often settles here before it reaches full face-up.
             if ((_confirmedOrientation == FlipOrientation.FaceDown
                  || _confirmedOrientation == FlipOrientation.Unknown)
                 && z > _liftedFromDownThreshold)

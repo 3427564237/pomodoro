@@ -26,6 +26,7 @@ namespace APP.Features.Countdown
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            // The page handles back itself while a session is running.
             Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false });
             ViewModel.NavigateToMainRequested += OnNavigateToMain;
             _coordinator.ConfigChanged += OnConfigChanged;
@@ -44,9 +45,6 @@ namespace APP.Features.Countdown
             ViewModel.Deactivate();
         }
 
-        /// <summary>
-        /// Handles the system back button.
-        /// 
         protected override bool OnBackButtonPressed()
         {
             var consumed = CountdownBackPressHandler.Handle(
@@ -70,6 +68,7 @@ namespace APP.Features.Countdown
         private void StartFlipListening()
         {
             if (_flipSubscribed) return;
+
             _flipSubscribed = true;
             _flipSensor.FlipUpDetected += OnFlipUp;
             _flipSensor.FlipDownDetected += OnFlipDown;
@@ -79,6 +78,7 @@ namespace APP.Features.Countdown
         private void StopFlipListening()
         {
             if (!_flipSubscribed) return;
+
             _flipSubscribed = false;
             _flipSensor.StopListening();
             _flipSensor.FlipUpDetected -= OnFlipUp;
@@ -119,6 +119,8 @@ namespace APP.Features.Countdown
         private void OnOverlayTapped(object sender, TappedEventArgs e)
         {
             var overlay = _coordinator.CurrentOverlay;
+
+            // Some overlays have their own tap behavior.
             if (overlay == APP.Core.Models.OverlayState.PutMeDown)
                 ViewModel.RequestPutMeDownTap();
             else if (overlay == APP.Core.Models.OverlayState.BackToFocus)
