@@ -26,7 +26,8 @@ namespace APP.Features.Countdown
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            // The page handles back itself while a session is running.
+            // 这个页面自己接管返回键，避免用户退回去以后计时还在后台偷偷跑。
+            // This page takes over the back button so the timer does not keep running in the background after the user leaves.
             Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false });
             ViewModel.NavigateToMainRequested += OnNavigateToMain;
             _coordinator.ConfigChanged += OnConfigChanged;
@@ -120,7 +121,8 @@ namespace APP.Features.Countdown
         {
             var overlay = _coordinator.CurrentOverlay;
 
-            // Some overlays have their own tap behavior.
+            // 不同 overlay 的确认动作不完全一样，这里别偷懒全走同一个入口。
+            // Not every overlay confirms the same way, so do not funnel all taps through one generic handler.
             if (overlay == APP.Core.Models.OverlayState.PutMeDown)
                 ViewModel.RequestPutMeDownTap();
             else if (overlay == APP.Core.Models.OverlayState.BackToFocus)

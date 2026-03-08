@@ -24,7 +24,9 @@ namespace APP.Core.StateMachine
         private bool _isPaused;
         private CancellationTokenSource? _overlayDismissCts;
         private CancellationTokenSource? _faceUpGraceCts;
-        private int _overlayDismissGuard; // 0 = open, 1 = claimed
+        // 同一个 overlay 可能被点击、自动关闭或被流程切走，这里保证只收口一次。
+        // The same overlay can be dismissed by a tap, auto-timeout, or another flow change, so this guard makes sure it only closes once.
+        private int _overlayDismissGuard; // 0 = open / 可关闭, 1 = claimed / 已接管
         private bool _lastFlipWasUp;
         private bool _putMeDownShownSinceLastDown;
 
@@ -94,6 +96,8 @@ namespace APP.Core.StateMachine
                 InteractionTimings.DefaultCycles,
                 InteractionTimings.DefaultFocusDuration,
                 InteractionTimings.DefaultBreakDuration);
+            // 计时器事件只订一份，后面靠状态机自己决定这次 tick 属于哪一段流程。
+            // Timer events are subscribed once here; the state machine decides which phase each tick belongs to.
             _timer.Tick += OnTimerTick;
             _timer.Completed += OnTimerCompleted;
         }
@@ -158,6 +162,8 @@ namespace APP.Core.StateMachine
             if (cycles < 1)
                 throw new ArgumentOutOfRangeException(nameof(cycles));
 
+            // 开新一轮时先把上一轮残留的异步任务清掉，避免旧回调晚到把界面又改回去。
+            // Clear async leftovers from the previous run first, otherwise a late callback can flip the UI back unexpectedly.
             CancelFaceUpGraceCheck();
             CancelOverlayTimer();
             Volatile.Write(ref _overlayDismissGuard, 1);
@@ -266,6 +272,8 @@ namespace APP.Core.StateMachine
             _putMeDownShownSinceLastDown = true;
             CancelFaceUpGraceCheck();
             CancelOverlayTimer();
+            // PutMeDown 和别的 overlay 会抢时机，先把“当前这次关闭权”占出来。
+            // PutMeDown can race with other overlays, so claim the dismissal slot before showing it.
             Volatile.Write(ref _overlayDismissGuard, 0);
             SetOverlay(OverlayState.PutMeDown);
             _haptics?.StartContinuousVibration();
@@ -304,6 +312,8 @@ namespace APP.Core.StateMachine
         {
             _isPaused = false;
 
+            // 到点时如果还停在 PutMeDown，先收干净，不然后面的 break / end overlay 会被挡住。
+            // If time runs out while PutMeDown is still visible, clear it first so the next break/end overlay can show.
             if (_currentOverlay == OverlayState.PutMeDown)
             {
                 CancelOverlayTimer();
@@ -351,6 +361,8 @@ namespace APP.Core.StateMachine
         private void ShowOverlayWithAutoDismiss(OverlayState overlay)
         {
             CancelOverlayTimer();
+            // Have a break / You did it / Back to focus 都走同一套自动收起逻辑。
+            // Have a break, You did it, and Back to focus all share the same auto-dismiss flow.
             Volatile.Write(ref _overlayDismissGuard, 0);
             SetOverlay(overlay);
 
@@ -373,6 +385,8 @@ namespace APP.Core.StateMachine
             if (Interlocked.CompareExchange(ref _overlayDismissGuard, 1, 0) != 0)
                 return;
 
+            // overlay 只是过渡层，真正进入下一步的动作都集中在这里接。
+            // Overlays are only transition layers; the actual next-step actions all converge here.
             var overlay = _currentOverlay;
             if (overlay == OverlayState.None) return;
 
@@ -437,6 +451,8 @@ namespace APP.Core.StateMachine
             if (_currentPhase != PhaseState.Focus) return;
             if (_isPaused) return;
 
+            // 刚回到 focus 时留一点缓冲，不然用户翻面动作还没放稳就会马上再弹提示。
+            // Give focus a small grace window when it resumes, otherwise the user can get reminded again before the phone settles.
             _faceUpGraceCts = new CancellationTokenSource();
             var ct = _faceUpGraceCts.Token;
             _ = Task.Run(async () =>
@@ -474,6 +490,8 @@ namespace APP.Core.StateMachine
             if (_isPaused) return;
             if (_putMeDownShownSinceLastDown) return;
             if (!IsFaceUp()) return;
+            // BackToFocus 这层还允许继续补 PutMeDown，因为它本质上还是在提醒回到专注状态。
+            // BackToFocus still allows PutMeDown to appear, because both overlays are nudging the user back into focus.
             if (_currentOverlay != OverlayState.None && _currentOverlay != OverlayState.BackToFocus) return;
 
             ShowPutMeDown();

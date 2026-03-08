@@ -17,6 +17,8 @@ namespace APP.Platforms.Android
         public FlipSensorService()
         {
             _detector = new FlipDetector();
+            // 平台服务只负责接线，真正的翻面判定细节都交给 FlipDetector。
+            // This platform service mostly wires things together; FlipDetector owns the actual orientation heuristics.
             _detector.FlipDownDetected += () => FlipDownDetected?.Invoke();
             _detector.FlipUpDetected += () => FlipUpDetected?.Invoke();
         }
@@ -27,11 +29,15 @@ namespace APP.Platforms.Android
             {
                 if (_listening) return;
                 _listening = true;
+                // 每次重新开始监听都重置一次状态，避免把上个页面留下的朝向记忆带进来。
+                // Reset the detector on every start so orientation state from a previous page does not leak into the new one.
                 _detector.Reset();
 
                 if (Accelerometer.Default.IsSupported)
                 {
                     Accelerometer.Default.ReadingChanged += OnAccelerometerReading;
+                    // UI 级频率已经够判断翻面了，没必要为了这个手势拉更高的采样成本。
+                    // UI sensor speed is enough for a flip gesture, so there is no need to pay for a faster sampling rate here.
                     Accelerometer.Default.Start(SensorSpeed.UI);
                 }
             }

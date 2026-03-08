@@ -57,6 +57,8 @@ namespace APP.Features.TimeSettings
         public void LoadFromConfig()
         {
             var config = _coordinator.Config;
+            // 这里直接回填字段，避免加载默认值时也走一遍“用户正在输入”的那套逻辑。
+            // Fill the backing fields directly here so loading defaults does not trigger the same path as live user typing.
             _cyclesText = config.Cycles.ToString();
             _focusMinutesText = ((int)config.FocusDuration.TotalMinutes).ToString();
             _breakMinutesText = ((int)config.BreakDuration.TotalMinutes).ToString();
@@ -73,6 +75,8 @@ namespace APP.Features.TimeSettings
         {
             if (!int.TryParse(_cyclesText, out var cycles) || cycles < 1)
             {
+                // 先把报错写得直一点，页面上看一眼就知道该改哪个字段。
+                // Keep the validation message blunt so the user can tell which field to fix at a glance.
                 ErrorMessage = "Cycles must be at least 1";
                 return false;
             }

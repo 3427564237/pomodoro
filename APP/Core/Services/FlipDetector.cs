@@ -65,6 +65,8 @@ namespace APP.Core.Services
 
             if (raw != _candidateOrientation)
             {
+                // 先记成候选态，不急着翻转；手机挪一下、桌子震一下都可能抖出假信号。
+                // Hold it as a candidate first instead of flipping immediately; a small nudge or desk vibration can fake the signal.
                 _candidateOrientation = raw;
                 _candidateStart = timestamp;
                 return;
@@ -98,7 +100,8 @@ namespace APP.Core.Services
             if (z <= _faceDownThreshold)
                 return FlipOrientation.FaceDown;
 
-            // A phone coming back up from the table often settles here before it reaches full face-up.
+            // 手机从桌面拿起来时，Z 轴常常会先停在这个区间，不一定马上冲到完整的 face-up。
+            // When the phone is lifted from the desk, the Z axis often settles here before it reaches a full face-up reading.
             if ((_confirmedOrientation == FlipOrientation.FaceDown
                  || _confirmedOrientation == FlipOrientation.Unknown)
                 && z > _liftedFromDownThreshold)

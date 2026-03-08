@@ -17,8 +17,8 @@ namespace APP.Platforms.Android
         {
             try
             {
-                // Repeated short bursts — platform-safe approximation.
-                // Full pattern-based vibration will be implemented in P0-6.
+                // 这里先用固定时长顶一下，至少各家 Android 机型上都比较稳。
+                // Use a fixed-duration buzz for now; it is the most reliable cross-device option on Android.
                 Vibration.Default.Vibrate(TimeSpan.FromSeconds(5));
             }
             catch { }

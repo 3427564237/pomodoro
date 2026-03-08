@@ -102,7 +102,8 @@ namespace APP.Features.Countdown
             else
                 _coordinator.Pause();
 
-            // Sync from SoT — coordinator may reject the request (e.g. during overlay)
+            // 真正的状态源还是 coordinator，比如 overlay 期间点暂停，那里可能直接不接这个请求。
+            // The coordinator is still the source of truth here; for example, it can reject pause while an overlay is showing.
             _isPaused = _coordinator.IsPaused;
             PauseButtonText = _isPaused ? "Resume" : "Pause";
         }
@@ -138,6 +139,8 @@ namespace APP.Features.Countdown
             var hasSession = _coordinator.HasActiveSession;
             var overlay = _coordinator.CurrentOverlay;
 
+            // 页面每次激活都整包同步一次，能把“刚导航回来”和“事件刚订阅上”这两个时机抹平。
+            // Sync the whole view model on every activation so navigation timing and event-subscription timing do not drift apart.
             _isPaused = _coordinator.IsPaused;
             PauseButtonText = _isPaused ? "Resume" : "Pause";
             PhaseLabel = _coordinator.CurrentPhase == PhaseState.Break ? "Break" : "Focus";

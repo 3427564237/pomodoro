@@ -3,6 +3,8 @@ using APP.Core.Models;
 
 namespace APP.Core.StateMachine
 {
+    // 这是 UI 层唯一该依赖的会话入口，页面只提请求，真正的状态收口都在 coordinator 里。
+    // This is the single session entry point the UI should depend on; pages make requests, and the coordinator owns the real state transitions.
     public interface IPomodoroCoordinator
     {
         PhaseState CurrentPhase { get; }

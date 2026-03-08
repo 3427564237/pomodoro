@@ -24,7 +24,8 @@ namespace APP
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            // Keep navigation and state machine shared for the whole app lifetime.
+            // 这几项都做成单例，页面来回切时会话状态、导航入口和底层服务才不会断掉。
+            // Keep these as singletons so session state, navigation, and device services survive page switches.
             builder.Services.AddSingleton<IAppNavigator, AppNavigator>();
             builder.Services.AddSingleton<ITimerEngine, TimerEngine>();
             builder.Services.AddSingleton<IHapticsService, APP.Platforms.Android.HapticsService>();
@@ -33,6 +34,8 @@ namespace APP
             builder.Services.AddSingleton<IPomodoroCoordinator>(sp =>
             {
                 var flipSensor = sp.GetRequiredService<IFlipSensorService>();
+                // 状态机只关心“现在是不是正面朝上”，具体传感器细节留在平台层处理。
+                // The state machine only asks whether the phone is face-up right now; sensor details stay in the platform layer.
                 return new PomodoroStateMachine(
                     sp.GetRequiredService<ITimerEngine>(),
                     sp.GetRequiredService<IAppNavigator>(),

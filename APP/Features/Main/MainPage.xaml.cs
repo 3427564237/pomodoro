@@ -26,6 +26,8 @@ namespace APP.Features.Main
         {
             base.OnAppearing();
             ((MainViewModel)BindingContext).Activate();
+            // 首页常驻时就开始听翻面，用户把手机扣下去可以直接从主页面起一轮。
+            // Start listening for flips while home is visible so a face-down gesture can launch a session right from the main page.
             StartFlipListening();
         }
 
@@ -48,6 +50,8 @@ namespace APP.Features.Main
         {
             if (!_flipSubscribed) return;
             _flipSubscribed = false;
+            // 页面一离开就把传感器停掉，省电，也避免别的页面还收到首页的启动手势。
+            // Stop the sensor as soon as the page leaves to save work and avoid home-page gestures firing in other screens.
             _flipSensor.StopListening();
             _flipSensor.FlipDownDetected -= OnFlipDown;
         }
@@ -56,6 +60,8 @@ namespace APP.Features.Main
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
+                // 翻面回调不保证在 UI 线程，这里统一切回主线程再触发会话启动。
+                // Flip callbacks are not guaranteed to arrive on the UI thread, so hop back before starting a session.
                 _coordinator.RequestStartFocus();
             });
         }

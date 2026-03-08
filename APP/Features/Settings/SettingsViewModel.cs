@@ -18,6 +18,8 @@ namespace APP.Features.Settings
             {
                 if (_strictModeEnabled == value) return;
                 _strictModeEnabled = value;
+                // 这个开关没有单独的“保存”按钮，用户一切换就立刻写回流程层。
+                // This toggle has no separate save step, so every change is written straight back to the flow layer.
                 _coordinator.UpdateStrictMode(value);
                 OnPropertyChanged();
             }
