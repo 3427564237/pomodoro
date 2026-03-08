@@ -54,8 +54,6 @@ namespace APP.Platforms.Android
 
         private void OnAccelerometerReading(object? sender, AccelerometerChangedEventArgs e)
         {
-            // MAUI Accelerometer returns values in g (gravity units).
-            // Z ≈ -1 when face-down, Z ≈ +1 when face-up.
             var z = e.Reading.Acceleration.Z;
             _detector.OnAccelerometerReading(z, DateTimeOffset.UtcNow);
         }

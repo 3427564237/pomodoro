@@ -31,7 +31,6 @@ namespace APP.Features.Countdown
             _coordinator.ConfigChanged += OnConfigChanged;
             ViewModel.Activate();
 
-            // 
             if (_coordinator.Config.StrictModeEnabled)
                 StartFlipListening();
         }
@@ -46,8 +45,7 @@ namespace APP.Features.Countdown
         }
 
         /// <summary>
-        /// Intercept Android hardware/system back button.
-        /// 
+        /// Handles the system back button.
         /// 
         protected override bool OnBackButtonPressed()
         {

@@ -7,8 +7,6 @@ namespace APP.Core.Services
 {
     public class TimerEngine : ITimerEngine
     {
-        // ── Publish queue item types ────────────────────────────
-
         private abstract class PublishItem { }
 
         private sealed class TickItem(long generation, TimerSnapshot snapshot) : PublishItem
@@ -26,8 +24,6 @@ namespace APP.Core.Services
         {
             public readonly TaskCompletionSource Tcs = tcs;
         }
-
-        // ── Fields ──────────────────────────────────────────────
 
         private readonly TimeSpan _tickInterval;
         private readonly object _lock = new();
@@ -161,8 +157,6 @@ namespace APP.Core.Services
             barrier.Task.Wait();
         }
 
-        // ── Private helpers ─────────────────────────────────────
-
         private TimeSpan GetRemaining()
         {
             var elapsed = _accumulated + (_isRunning ? _stopwatch.Elapsed : TimeSpan.Zero);
@@ -186,8 +180,6 @@ namespace APP.Core.Services
             _tickCts?.Dispose();
             _tickCts = null;
         }
-
-        // ── Tick loop (enqueues only, never fires events) ───────
 
         private async Task RunTickLoopAsync(long myGeneration, CancellationToken ct)
         {
@@ -233,8 +225,6 @@ namespace APP.Core.Services
             {
             }
         }
-
-        // ── Single-threaded publisher (consumes queue) ──────────
 
         private async Task PublisherLoopAsync()
         {

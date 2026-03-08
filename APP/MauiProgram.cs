@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using APP.Core.Config;
 using APP.Core.Navigation;
 using APP.Core.Services;
 using APP.Core.StateMachine;
@@ -29,14 +30,21 @@ namespace APP
             // Core services
             builder.Services.AddSingleton<ITimerEngine, TimerEngine>();
             builder.Services.AddSingleton<IHapticsService, APP.Platforms.Android.HapticsService>();
-            builder.Services.AddSingleton<IPomodoroCoordinator>(sp =>
-                new PomodoroStateMachine(
-                    sp.GetRequiredService<ITimerEngine>(),
-                    sp.GetRequiredService<IAppNavigator>(),
-                    sp.GetRequiredService<IHapticsService>()));
 
             // Flip sensor (Android implementation)
             builder.Services.AddSingleton<IFlipSensorService, APP.Platforms.Android.FlipSensorService>();
+
+            builder.Services.AddSingleton<IPomodoroCoordinator>(sp =>
+            {
+                var flipSensor = sp.GetRequiredService<IFlipSensorService>();
+                return new PomodoroStateMachine(
+                    sp.GetRequiredService<ITimerEngine>(),
+                    sp.GetRequiredService<IAppNavigator>(),
+                    sp.GetRequiredService<IHapticsService>(),
+                    InteractionTimings.BreakPromptAutoDismiss,
+                    InteractionTimings.PutMeDownAutoDismiss,
+                    isFaceUpQuery: () => flipSensor.CurrentOrientation == FlipOrientation.FaceUp);
+            });
 
             // Pages
             builder.Services.AddTransient<MainPage>();

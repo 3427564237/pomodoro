@@ -18,10 +18,7 @@ namespace APP.Core.Config
         public static readonly double FaceUpThreshold = 0.8;
 
         /// <summary>
-        /// When confirmed FaceDown, readings above this threshold are considered
-        /// "lifted" (covers upright/vertical holding). Provides hysteresis so
-        /// slight tilts from face-down (e.g. desk bump) don't false-trigger.
-        /// Value chosen so phone must tilt ~73° from face-down before triggering.
+        /// Threshold used to treat an upright device as face-up.
         /// 
         public static readonly double LiftedFromDownThreshold = -0.3;
     }

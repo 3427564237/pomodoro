@@ -11,8 +11,6 @@ namespace APP.Core.Services
 
     /// <summary>
     /// Detects face-up and face-down transitions from accelerometer readings.
-    /// edge-triggered FlipDown / FlipUp events with debounce and cooldown.
-    /// 
     /// 
     public sealed class FlipDetector
     {
@@ -30,7 +28,9 @@ namespace APP.Core.Services
         public event Action? FlipDownDetected;
         public event Action? FlipUpDetected;
 
-        /// <summary>Current confirmed orientation (after debounce).
+        /// <summary>
+        /// Gets the current debounced orientation.
+        /// 
         public FlipOrientation CurrentOrientation => _confirmedOrientation;
 
         public FlipDetector()
@@ -54,9 +54,7 @@ namespace APP.Core.Services
         }
 
         /// <summary>
-        /// Feed a new accelerometer reading. <paramref name="zNormalized"/> is the
-        /// Z-axis value in multiples of g (roughly –1 = face-down, +1 = face-up).
-        /// <paramref name="timestamp"/> must be monotonically increasing.
+        /// Processes a new accelerometer reading.
         /// 
         public void OnAccelerometerReading(double zNormalized, DateTimeOffset timestamp)
         {
@@ -64,19 +62,16 @@ namespace APP.Core.Services
 
             if (raw == FlipOrientation.Unknown)
             {
-                // In the dead-zone — reset candidate but keep confirmed.
                 _candidateOrientation = FlipOrientation.Unknown;
                 return;
             }
 
             if (raw == _confirmedOrientation)
             {
-                // Already in this state — no transition needed.
                 _candidateOrientation = FlipOrientation.Unknown;
                 return;
             }
 
-            // We have a new candidate that differs from confirmed.
             if (raw != _candidateOrientation)
             {
                 _candidateOrientation = raw;
@@ -84,15 +79,12 @@ namespace APP.Core.Services
                 return;
             }
 
-            // Same candidate persisted — check debounce window.
             if (timestamp - _candidateStart < _debounce)
                 return;
 
-            // Debounce satisfied — check cooldown from last event.
             if (timestamp - _lastEventTime < _cooldown)
                 return;
 
-            // Transition confirmed.
             _confirmedOrientation = raw;
             _candidateOrientation = FlipOrientation.Unknown;
             _lastEventTime = timestamp;
@@ -103,7 +95,9 @@ namespace APP.Core.Services
                 FlipUpDetected?.Invoke();
         }
 
-        /// <summary>Reset internal state (e.g. when sensor is stopped/restarted).
+        /// <summary>
+        /// Resets the detector state.
+        /// 
         public void Reset()
         {
             _confirmedOrientation = FlipOrientation.Unknown;
@@ -116,10 +110,10 @@ namespace APP.Core.Services
             if (z <= _faceDownThreshold)
                 return FlipOrientation.FaceDown;
 
-            // Asymmetric: when confirmed FaceDown, any reading above the
-            // "lifted" threshold counts as FaceUp — covers upright/vertical
-            // holding (z ≈ 0) in addition to full face-up (z ≈ +1).
-            if (_confirmedOrientation == FlipOrientation.FaceDown
+            // Treat upright readings as face-up when starting from unknown
+            // or after a confirmed face-down state.
+            if ((_confirmedOrientation == FlipOrientation.FaceDown
+                 || _confirmedOrientation == FlipOrientation.Unknown)
                 && z > _liftedFromDownThreshold)
                 return FlipOrientation.FaceUp;
 

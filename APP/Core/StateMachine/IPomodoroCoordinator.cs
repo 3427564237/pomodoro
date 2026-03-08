@@ -22,7 +22,6 @@ namespace APP.Core.StateMachine
         /// <summary>
         /// Starts a session if the coordinator is idle.
         /// 
-        /// 
         bool RequestStartFocus();
 
         void StartFocus(int cycles, TimeSpan focusDuration, TimeSpan breakDuration);
@@ -33,26 +32,29 @@ namespace APP.Core.StateMachine
         void OverlayTapped();
         void UpdateConfig(int cycles, TimeSpan focusDuration, TimeSpan breakDuration);
 
-        /// <summary>Updates the strict-mode setting.
+        /// <summary>
+        /// Updates the strict-mode setting.
+        /// 
         void UpdateStrictMode(bool enabled);
 
         /// <summary>
         /// Notifies the coordinator that the device has been flipped face up.
-        /// 
-        /// 
         /// 
         void OnFlipUpDetected();
 
         /// <summary>
         /// Notifies the coordinator that the device has been flipped face down.
         /// 
-        /// 
         void OnFlipDownDetected();
 
         /// <summary>
+        /// 
+        /// 
         void PutMeDownTapped();
 
-        /// <summary>User tapped the BackToFocus overlay — dismiss immediately.
+        /// <summary>
+        /// 
+        /// 
         void BackToFocusTapped();
     }
 }
