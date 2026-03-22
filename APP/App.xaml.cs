@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 
 namespace APP
 {
@@ -7,13 +8,23 @@ namespace APP
         public App()
         {
             InitializeComponent();
+
+            AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+            {
+                Debug.WriteLine($"[UnhandledException] {args.ExceptionObject}");
+            };
+
+            TaskScheduler.UnobservedTaskException += (_, args) =>
+            {
+                Debug.WriteLine($"[UnobservedTaskException] {args.Exception}");
+                args.SetObserved();
+            };
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            // 应用启动先交给 Shell，后面的页面跳转和路由都按同一套路走。
-            // Start the app with Shell so the rest of the navigation stack and route handling all follow one path.
-            return new Window(new AppShell());
+            var appShell = MauiProgram.Services.GetRequiredService<AppShell>();
+            return new Window(appShell);
         }
     }
 }

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace APP.Features.Placeholders
 {
     [QueryProperty(nameof(PageTitle), "title")]
@@ -12,6 +14,11 @@ namespace APP.Features.Placeholders
                 Title = value;
                 titleLabel.Text = value;
             }
+        }
+
+        public PlaceholderPage()
+            : this(MauiProgram.Services.GetRequiredService<PlaceholderViewModel>())
+        {
         }
 
         public PlaceholderPage(PlaceholderViewModel viewModel)

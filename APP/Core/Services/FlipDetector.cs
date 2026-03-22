@@ -29,11 +29,11 @@ namespace APP.Core.Services
 
         public FlipDetector()
             : this(
-                  InteractionTimings.FaceDownThreshold,
-                  InteractionTimings.FaceUpThreshold,
-                  InteractionTimings.LiftedFromDownThreshold,
-                  InteractionTimings.FlipDebounce,
-                  InteractionTimings.FlipCooldown)
+                  Constants.FaceDownThreshold,
+                  Constants.FaceUpThreshold,
+                  Constants.LiftedFromDownThreshold,
+                  Constants.FlipDebounce,
+                  Constants.FlipDebounce) // FlipCooldown 与 FlipDebounce 相同
         { }
 
         public FlipDetector(double faceDownThreshold, double faceUpThreshold,

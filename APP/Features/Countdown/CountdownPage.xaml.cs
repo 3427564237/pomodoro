@@ -1,6 +1,7 @@
 using APP.Core.Navigation;
 using APP.Core.Services;
 using APP.Core.StateMachine;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace APP.Features.Countdown
 {
@@ -11,6 +12,14 @@ namespace APP.Features.Countdown
         private bool _flipSubscribed;
 
         private CountdownViewModel ViewModel => (CountdownViewModel)BindingContext;
+
+        public CountdownPage()
+            : this(
+                MauiProgram.Services.GetRequiredService<CountdownViewModel>(),
+                MauiProgram.Services.GetRequiredService<PomodoroStateMachine>(),
+                MauiProgram.Services.GetRequiredService<IFlipSensorService>())
+        {
+        }
 
         public CountdownPage(CountdownViewModel viewModel, PomodoroStateMachine coordinator, IFlipSensorService flipSensor)
         {

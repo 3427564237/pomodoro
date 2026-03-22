@@ -1,6 +1,7 @@
 using APP.Core.Config;
 using APP.Core.Services;
 using Microsoft.Maui.Devices.Sensors;
+using System.Diagnostics;
 
 namespace APP.Platforms.Android
 {
@@ -58,8 +59,15 @@ namespace APP.Platforms.Android
 
         private void OnAccelerometerReading(object? sender, AccelerometerChangedEventArgs e)
         {
-            var z = e.Reading.Acceleration.Z;
-            _detector.OnAccelerometerReading(z, DateTimeOffset.UtcNow);
+            try
+            {
+                var z = e.Reading.Acceleration.Z;
+                _detector.OnAccelerometerReading(z, DateTimeOffset.UtcNow);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[FlipSensorService] {ex}");
+            }
         }
 
         public void Dispose()

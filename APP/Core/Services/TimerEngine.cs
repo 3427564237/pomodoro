@@ -1,30 +1,19 @@
-using System.Diagnostics;
 using APP.Core.Config;
 using APP.Core.Models;
 
 namespace APP.Core.Services
 {
-    // 简单的计时器，每隔一段时间触发Tick事件，倒计时结束时触发Completed事件
+    // 简单的计时器
     public class TimerEngine
     {
-        private readonly TimeSpan _tickInterval;
-        private readonly Stopwatch _stopwatch = new();
-
-        private TimeSpan _total;
-        private TimeSpan _accumulated;
+        private IDispatcherTimer? _tickTimer;
+        private DateTime _startTime;
+        private TimeSpan _totalDuration;
+        private TimeSpan _pausedTime;
         private bool _isRunning;
-        private bool _hasStarted;
-        private CancellationTokenSource? _cts;
 
         public event Action<TimerSnapshot>? Tick;
         public event Action? Completed;
-
-        public TimerEngine() : this(InteractionTimings.TimerTickInterval) { }
-
-        public TimerEngine(TimeSpan tickInterval)
-        {
-            _tickInterval = tickInterval;
-        }
 
         public bool IsRunning => _isRunning;
 
@@ -32,8 +21,14 @@ namespace APP.Core.Services
         {
             get
             {
-                var elapsed = _accumulated + (_isRunning ? _stopwatch.Elapsed : TimeSpan.Zero);
-                var remaining = _total - elapsed;
+                if (!IsRunning && _pausedTime > TimeSpan.Zero)
+                    return _totalDuration - _pausedTime;
+
+                if (!IsRunning)
+                    return TimeSpan.Zero;
+
+                var elapsed = DateTime.UtcNow - _startTime + _pausedTime;
+                var remaining = _totalDuration - elapsed;
                 return remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero;
             }
         }
@@ -42,114 +37,72 @@ namespace APP.Core.Services
         {
             if (duration <= TimeSpan.Zero) return;
 
-            // 停掉之前的计时
-            StopTickLoop();
+            Stop();
 
-            _total = duration;
-            _accumulated = TimeSpan.Zero;
-            _hasStarted = true;
+            _totalDuration = duration;
+            _pausedTime = TimeSpan.Zero;
             _isRunning = true;
-            _stopwatch.Restart();
+            _startTime = DateTime.UtcNow;
 
-            // 开始新的tick循环
-            _cts = new CancellationTokenSource();
-            _ = RunTickLoopAsync(_cts.Token);
+            _tickTimer = Dispatcher.GetForCurrentThread().CreateTimer();
+            _tickTimer.Interval = TimeSpan.FromMilliseconds(250);
+            _tickTimer.Tick += OnTimerTick;
+            _tickTimer.Start();
         }
 
         public void Pause()
         {
-            if (!_isRunning || !_hasStarted) return;
+            if (!_isRunning) return;
 
-            _accumulated += _stopwatch.Elapsed;
-            _stopwatch.Stop();
+            _pausedTime += DateTime.UtcNow - _startTime;
             _isRunning = false;
-            StopTickLoop();
+            _tickTimer?.Stop();
         }
 
         public void Resume()
         {
-            if (_isRunning || !_hasStarted) return;
+            if (_isRunning) return;
 
             _isRunning = true;
-            _stopwatch.Restart();
-            _cts = new CancellationTokenSource();
-            _ = RunTickLoopAsync(_cts.Token);
+            _startTime = DateTime.UtcNow;
+            _tickTimer?.Start();
         }
 
         public void Stop()
         {
-            StopTickLoop();
-            ResetState();
+            if (_tickTimer != null)
+            {
+                _tickTimer.Tick -= OnTimerTick;
+                _tickTimer.Stop();
+                _tickTimer = null;
+            }
+
+            _isRunning = false;
+            _pausedTime = TimeSpan.Zero;
         }
 
         public void Skip()
         {
-            if (!_hasStarted) return;
+            if (_totalDuration <= TimeSpan.Zero) return;
 
-            var total = _total;
-            StopTickLoop();
-            ResetState();
+            Stop();
+            Tick?.Invoke(new TimerSnapshot(_totalDuration, TimeSpan.Zero, false));
+            Completed?.Invoke();
+        }
 
-            // 先发一个00:00的tick，再触发completed
-            MainThread.BeginInvokeOnMainThread(() =>
+        private void OnTimerTick(object? sender, EventArgs e)
+        {
+            var remaining = Remaining;
+
+            if (remaining <= TimeSpan.Zero)
             {
-                Tick?.Invoke(new TimerSnapshot(total, TimeSpan.Zero, false));
+                Stop();
+                Tick?.Invoke(new TimerSnapshot(_totalDuration, TimeSpan.Zero, false));
                 Completed?.Invoke();
-            });
-        }
-
-        private void ResetState()
-        {
-            _isRunning = false;
-            _hasStarted = false;
-            _stopwatch.Stop();
-            _stopwatch.Reset();
-            _total = TimeSpan.Zero;
-            _accumulated = TimeSpan.Zero;
-        }
-
-        private void StopTickLoop()
-        {
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = null;
-        }
-
-        private async Task RunTickLoopAsync(CancellationToken ct)
-        {
-            try
-            {
-                while (!ct.IsCancellationRequested)
-                {
-                    await Task.Delay(_tickInterval, ct);
-                    if (ct.IsCancellationRequested) break;
-
-                    var total = _total;
-                    var remaining = Remaining;
-
-                    // 倒计时结束
-                    if (remaining <= TimeSpan.Zero)
-                    {
-                        ResetState();
-
-                        MainThread.BeginInvokeOnMainThread(() =>
-                        {
-                            Tick?.Invoke(new TimerSnapshot(total, TimeSpan.Zero, false));
-                            Completed?.Invoke();
-                        });
-                        return;
-                    }
-
-                    // 正常tick
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        Tick?.Invoke(new TimerSnapshot(total, remaining, true));
-                    });
-                }
             }
-            catch (OperationCanceledException)
+            else
             {
-                // 正常取消，不用处理
+                Tick?.Invoke(new TimerSnapshot(_totalDuration, remaining, true));
             }
         }
     }

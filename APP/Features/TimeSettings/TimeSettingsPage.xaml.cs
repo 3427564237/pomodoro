@@ -1,4 +1,5 @@
 using APP.Core.StateMachine;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace APP.Features.TimeSettings
 {
@@ -12,6 +13,11 @@ namespace APP.Features.TimeSettings
         public string BreakMinutesText { get; set; } = "5";
         public string ErrorMessage { get; set; } = "";
         public bool HasError { get; set; } = false;
+
+        public TimeSettingsPage()
+            : this(MauiProgram.Services.GetRequiredService<PomodoroStateMachine>())
+        {
+        }
 
         public TimeSettingsPage(PomodoroStateMachine stateMachine)
         {

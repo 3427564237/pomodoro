@@ -32,4 +32,11 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<MauiXaml Update="App.xaml" Generator="MSBuild:Compile" />
+		<MauiXaml Update="AppShell.xaml" Generator="MSBuild:Compile" />
+		<MauiXaml Update="Features\**\*.xaml" Generator="MSBuild:Compile" />
+		<MauiXaml Update="Resources\Styles\*.xaml" Generator="MSBuild:Compile" />
+	</ItemGroup>
+
 </Project>

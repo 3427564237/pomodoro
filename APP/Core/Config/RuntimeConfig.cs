@@ -1,10 +1,26 @@
 namespace APP.Core.Config
 {
-    // StrictMode 默认打开，这样开箱就是“翻过来会提醒放下”的完整体验。
-    // StrictMode starts enabled so the default out-of-box behavior includes the face-up reminder.
-    public record RuntimeConfig(
-        int Cycles,
-        TimeSpan FocusDuration,
-        TimeSpan BreakDuration,
-        bool StrictModeEnabled = true);
+    // 番茄钟的运行配置
+    public class RuntimeConfig
+    {
+        public int Cycles { get; set; }
+        public TimeSpan FocusDuration { get; set; }
+        public TimeSpan BreakDuration { get; set; }
+        public bool StrictModeEnabled { get; set; } = true;
+
+        public RuntimeConfig(int cycles, TimeSpan focusDuration, TimeSpan breakDuration)
+        {
+            Cycles = cycles;
+            FocusDuration = focusDuration;
+            BreakDuration = breakDuration;
+        }
+
+        public RuntimeConfig Copy()
+        {
+            return new RuntimeConfig(Cycles, FocusDuration, BreakDuration)
+            {
+                StrictModeEnabled = StrictModeEnabled
+            };
+        }
+    }
 }

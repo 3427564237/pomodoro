@@ -1,7 +1,14 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace APP.Features.Settings
 {
     public partial class SettingsPage : ContentPage
     {
+        public SettingsPage()
+            : this(MauiProgram.Services.GetRequiredService<SettingsViewModel>())
+        {
+        }
+
         public SettingsPage(SettingsViewModel viewModel)
         {
             InitializeComponent();
