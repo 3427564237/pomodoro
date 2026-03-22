@@ -6,7 +6,7 @@ namespace APP.Features.TimeSettings
 {
     public class TimeSettingsViewModel : INotifyPropertyChanged
     {
-        private readonly IPomodoroCoordinator _coordinator;
+        private readonly PomodoroStateMachine _coordinator;
         private string _cyclesText = "";
         private string _focusMinutesText = "";
         private string _breakMinutesText = "";
@@ -48,7 +48,7 @@ namespace APP.Features.TimeSettings
 
         public bool HasError => !string.IsNullOrEmpty(_errorMessage);
 
-        public TimeSettingsViewModel(IPomodoroCoordinator coordinator)
+        public TimeSettingsViewModel(PomodoroStateMachine coordinator)
         {
             _coordinator = coordinator;
             LoadFromConfig();

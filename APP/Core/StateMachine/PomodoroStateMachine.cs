@@ -6,10 +6,10 @@ using APP.Core.Services;
 
 namespace APP.Core.StateMachine
 {
-    public class PomodoroStateMachine : IPomodoroCoordinator
+    // 番茄钟的核心状态机，管理专注/休息/暂停等状态
+    public class PomodoroStateMachine
     {
-        private readonly ITimerEngine _timer;
-        private readonly IAppNavigator? _navigator;
+        private readonly TimerEngine _timer;
         private readonly IHapticsService? _haptics;
         private readonly Func<bool>? _isFaceUpQuery;
         private readonly TimeSpan _overlayAutoDismiss;
@@ -44,49 +44,25 @@ namespace APP.Core.StateMachine
         public bool HasActiveSession => _currentPhase != PhaseState.Idle;
         public RuntimeConfig Config => _config;
 
-        public PomodoroStateMachine(ITimerEngine timer)
-            : this(timer, null, null,
+        public PomodoroStateMachine(TimerEngine timer)
+            : this(timer, null,
                    InteractionTimings.BreakPromptAutoDismiss,
                    InteractionTimings.PutMeDownAutoDismiss)
         { }
 
-        public PomodoroStateMachine(ITimerEngine timer, TimeSpan overlayAutoDismiss)
-            : this(timer, null, null, overlayAutoDismiss,
-                   InteractionTimings.PutMeDownAutoDismiss)
-        { }
-
-        public PomodoroStateMachine(ITimerEngine timer, IAppNavigator? navigator)
-            : this(timer, navigator, null,
+        public PomodoroStateMachine(TimerEngine timer, IHapticsService? haptics)
+            : this(timer, haptics,
                    InteractionTimings.BreakPromptAutoDismiss,
                    InteractionTimings.PutMeDownAutoDismiss)
         { }
 
-        public PomodoroStateMachine(ITimerEngine timer, IAppNavigator? navigator,
-                                    TimeSpan overlayAutoDismiss)
-            : this(timer, navigator, null, overlayAutoDismiss,
-                   InteractionTimings.PutMeDownAutoDismiss)
-        { }
-
-        public PomodoroStateMachine(ITimerEngine timer, TimeSpan overlayAutoDismiss,
-                                    TimeSpan putMeDownAutoDismiss)
-            : this(timer, null, null, overlayAutoDismiss, putMeDownAutoDismiss) { }
-
-        public PomodoroStateMachine(ITimerEngine timer, IAppNavigator? navigator,
-                                    IHapticsService? haptics)
-            : this(timer, navigator, haptics,
-                   InteractionTimings.BreakPromptAutoDismiss,
-                   InteractionTimings.PutMeDownAutoDismiss)
-        { }
-
-        public PomodoroStateMachine(ITimerEngine timer, IAppNavigator? navigator,
-                                    IHapticsService? haptics,
+        public PomodoroStateMachine(TimerEngine timer, IHapticsService? haptics,
                                     TimeSpan overlayAutoDismiss,
                                     TimeSpan putMeDownAutoDismiss,
                                     TimeSpan? faceUpGraceDelay = null,
                                     Func<bool>? isFaceUpQuery = null)
         {
             _timer = timer;
-            _navigator = navigator;
             _haptics = haptics;
             _isFaceUpQuery = isFaceUpQuery;
             _overlayAutoDismiss = overlayAutoDismiss;
@@ -142,8 +118,7 @@ namespace APP.Core.StateMachine
         {
             try
             {
-                if (_navigator != null)
-                    await _navigator.GoToCountdownAsync();
+                await Shell.Current.GoToAsync(Routes.Countdown);
             }
             catch (Exception ex)
             {

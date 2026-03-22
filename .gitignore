@@ -4,3 +4,4 @@ obj/
 guide/
 .vscode/
 APP.Tests/
+artifacts/

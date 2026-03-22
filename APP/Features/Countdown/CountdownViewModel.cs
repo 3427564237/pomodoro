@@ -7,7 +7,7 @@ namespace APP.Features.Countdown
 {
     public class CountdownViewModel : INotifyPropertyChanged
     {
-        private readonly IPomodoroCoordinator _coordinator;
+        private readonly PomodoroStateMachine _coordinator;
         private string _remainingText = "00:00";
         private string _pauseButtonText = "Pause";
         private string _phaseLabel = "Focus";
@@ -65,7 +65,7 @@ namespace APP.Features.Countdown
             private set { if (_overlayText != value) { _overlayText = value; OnPropertyChanged(); } }
         }
 
-        public CountdownViewModel(IPomodoroCoordinator coordinator)
+        public CountdownViewModel(PomodoroStateMachine coordinator)
         {
             _coordinator = coordinator;
         }

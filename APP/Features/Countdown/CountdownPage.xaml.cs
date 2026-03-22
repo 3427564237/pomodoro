@@ -6,19 +6,16 @@ namespace APP.Features.Countdown
 {
     public partial class CountdownPage : ContentPage
     {
-        private readonly IAppNavigator _navigator;
-        private readonly IPomodoroCoordinator _coordinator;
+        private readonly PomodoroStateMachine _coordinator;
         private readonly IFlipSensorService _flipSensor;
         private bool _flipSubscribed;
 
         private CountdownViewModel ViewModel => (CountdownViewModel)BindingContext;
 
-        public CountdownPage(CountdownViewModel viewModel, IAppNavigator navigator,
-                             IPomodoroCoordinator coordinator, IFlipSensorService flipSensor)
+        public CountdownPage(CountdownViewModel viewModel, PomodoroStateMachine coordinator, IFlipSensorService flipSensor)
         {
             InitializeComponent();
             BindingContext = viewModel;
-            _navigator = navigator;
             _coordinator = coordinator;
             _flipSensor = flipSensor;
         }
@@ -26,8 +23,6 @@ namespace APP.Features.Countdown
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            // 这个页面自己接管返回键，避免用户退回去以后计时还在后台偷偷跑。
-            // This page takes over the back button so the timer does not keep running in the background after the user leaves.
             Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false });
             ViewModel.NavigateToMainRequested += OnNavigateToMain;
             _coordinator.ConfigChanged += OnConfigChanged;
@@ -69,7 +64,6 @@ namespace APP.Features.Countdown
         private void StartFlipListening()
         {
             if (_flipSubscribed) return;
-
             _flipSubscribed = true;
             _flipSensor.FlipUpDetected += OnFlipUp;
             _flipSensor.FlipDownDetected += OnFlipDown;
@@ -79,7 +73,6 @@ namespace APP.Features.Countdown
         private void StopFlipListening()
         {
             if (!_flipSubscribed) return;
-
             _flipSubscribed = false;
             _flipSensor.StopListening();
             _flipSensor.FlipUpDetected -= OnFlipUp;
@@ -103,26 +96,18 @@ namespace APP.Features.Countdown
         }
 
         private void OnStopClicked(object sender, EventArgs e)
-        {
-            ViewModel.RequestStop();
-        }
+            => ViewModel.RequestStop();
 
         private void OnPauseClicked(object sender, EventArgs e)
-        {
-            ViewModel.TogglePause();
-        }
+            => ViewModel.TogglePause();
 
         private void OnSkipClicked(object sender, EventArgs e)
-        {
-            ViewModel.RequestSkip();
-        }
+            => ViewModel.RequestSkip();
 
         private void OnOverlayTapped(object sender, TappedEventArgs e)
         {
             var overlay = _coordinator.CurrentOverlay;
 
-            // 不同 overlay 的确认动作不完全一样，这里别偷懒全走同一个入口。
-            // Not every overlay confirms the same way, so do not funnel all taps through one generic handler.
             if (overlay == APP.Core.Models.OverlayState.PutMeDown)
                 ViewModel.RequestPutMeDownTap();
             else if (overlay == APP.Core.Models.OverlayState.BackToFocus)
@@ -133,7 +118,7 @@ namespace APP.Features.Countdown
 
         private async void OnNavigateToMain()
         {
-            await _navigator.GoToMainAsync();
+            await Shell.Current.GoToAsync(Routes.MainAbsolute);
         }
     }
 }

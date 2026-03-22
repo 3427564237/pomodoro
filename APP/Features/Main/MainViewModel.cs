@@ -7,7 +7,7 @@ namespace APP.Features.Main
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private readonly IPomodoroCoordinator _coordinator;
+        private readonly PomodoroStateMachine _coordinator;
         private string _timerDisplay = string.Empty;
         private string _configSummary = string.Empty;
 
@@ -25,7 +25,7 @@ namespace APP.Features.Main
             private set { if (_configSummary != value) { _configSummary = value; OnPropertyChanged(); } }
         }
 
-        public MainViewModel(IPomodoroCoordinator coordinator)
+        public MainViewModel(PomodoroStateMachine coordinator)
         {
             _coordinator = coordinator;
             RefreshFromConfig();

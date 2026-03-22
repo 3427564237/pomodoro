@@ -6,7 +6,7 @@ namespace APP.Features.Settings
 {
     public class SettingsViewModel : INotifyPropertyChanged
     {
-        private readonly IPomodoroCoordinator _coordinator;
+        private readonly PomodoroStateMachine _coordinator;
         private bool _strictModeEnabled;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -25,7 +25,7 @@ namespace APP.Features.Settings
             }
         }
 
-        public SettingsViewModel(IPomodoroCoordinator coordinator)
+        public SettingsViewModel(PomodoroStateMachine coordinator)
         {
             _coordinator = coordinator;
             _strictModeEnabled = coordinator.Config.StrictModeEnabled;
