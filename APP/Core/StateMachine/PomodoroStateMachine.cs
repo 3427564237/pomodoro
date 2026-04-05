@@ -9,7 +9,6 @@ namespace APP.Core.StateMachine
     public class PomodoroStateMachine
     {
         private readonly TimerEngine _timer;
-        private readonly IHapticsService? _haptics;
         private readonly Func<bool>? _isFaceUpQuery;
 
         private RuntimeConfig _config;
@@ -39,11 +38,9 @@ namespace APP.Core.StateMachine
         public bool HasActiveSession => _currentPhase != PhaseState.Idle;
         public RuntimeConfig Config => _config;
 
-        public PomodoroStateMachine(TimerEngine timer, IHapticsService? haptics = null,
-                                    Func<bool>? isFaceUpQuery = null)
+        public PomodoroStateMachine(TimerEngine timer, Func<bool>? isFaceUpQuery = null)
         {
             _timer = timer;
-            _haptics = haptics;
             _isFaceUpQuery = isFaceUpQuery;
             _config = new RuntimeConfig(
                 Constants.DefaultCycles,
@@ -70,6 +67,14 @@ namespace APP.Core.StateMachine
             _config.StrictModeEnabled = enabled;
             if (!enabled && _currentOverlay == OverlayState.PutMeDown)
                 DismissPutMeDown();
+            ConfigChanged?.Invoke(_config);
+        }
+
+        public void UpdateVibrationEnabled(bool enabled)
+        {
+            if (_config.VibrationEnabled == enabled) return;
+
+            _config.VibrationEnabled = enabled;
             ConfigChanged?.Invoke(_config);
         }
 
@@ -115,7 +120,6 @@ namespace APP.Core.StateMachine
 
             CancelAllTimers();
             _timer.Stop();
-            _haptics?.StopVibration();
             ResetSession();
             SessionEnded?.Invoke();
         }
@@ -190,7 +194,6 @@ namespace APP.Core.StateMachine
             CancelAllTimers();
 
             SetOverlay(OverlayState.PutMeDown);
-            _haptics?.StartContinuousVibration();
 
             _overlayDismissTimer = Dispatcher.GetForCurrentThread().CreateTimer();
             _overlayDismissTimer.Interval = Constants.PutMeDownDisplayTime;
@@ -201,7 +204,6 @@ namespace APP.Core.StateMachine
         private void DismissPutMeDown()
         {
             CancelDismissTimer();
-            _haptics?.StopVibration();
             SetOverlay(OverlayState.None);
         }
 
@@ -218,9 +220,7 @@ namespace APP.Core.StateMachine
             if (_currentOverlay == OverlayState.PutMeDown)
             {
                 CancelDismissTimer();
-                _haptics?.StopVibration();
-                _currentOverlay = OverlayState.None;
-                OverlayChanged?.Invoke(OverlayState.None);
+                SetOverlay(OverlayState.None);
             }
 
             if (_currentPhase == PhaseState.Focus)
@@ -247,7 +247,6 @@ namespace APP.Core.StateMachine
                 _currentSnapshot = new TimerSnapshot(focusDuration, focusDuration, true);
                 SetPhase(PhaseState.Focus);
                 _timer.Start(focusDuration);
-                _haptics?.PlayShortBuzz();
                 ShowOverlayWithAutoDismiss(OverlayState.BackToFocus);
 
                 TryShowPutMeDownForCurrentOrientation();
@@ -321,7 +320,7 @@ namespace APP.Core.StateMachine
 
         private void ResetSession()
         {
-            _currentOverlay = OverlayState.None;
+            SetOverlay(OverlayState.None);
             _cyclesRemaining = 0;
             _isPaused = false;
             _putMeDownShownSinceLastDown = false;

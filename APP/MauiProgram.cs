@@ -26,11 +26,11 @@ namespace APP
 
             // 初始化核心服务
             var timerEngine = new TimerEngine();
-            var hapticsService = new HapticsService();
             var flipSensorService = new FlipSensorService();
 
-            var pomodoroStateMachine = new PomodoroStateMachine(timerEngine, hapticsService,
+            var pomodoroStateMachine = new PomodoroStateMachine(timerEngine,
                 () => flipSensorService.CurrentOrientation == FlipOrientation.FaceUp);
+            var hapticsService = new HapticsService(pomodoroStateMachine);
 
             // 注册页面和ViewModel
             builder.Services.AddSingleton<AppShell>();
@@ -49,7 +49,7 @@ namespace APP
             // 提供服务实例给应用
             builder.Services.AddSingleton(pomodoroStateMachine);
             builder.Services.AddSingleton(timerEngine);
-            builder.Services.AddSingleton<IHapticsService>(hapticsService);
+            builder.Services.AddSingleton(hapticsService);
             builder.Services.AddSingleton<IFlipSensorService>(flipSensorService);
 
             var app = builder.Build();

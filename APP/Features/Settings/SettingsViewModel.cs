@@ -8,6 +8,7 @@ namespace APP.Features.Settings
     {
         private readonly PomodoroStateMachine _coordinator;
         private bool _strictModeEnabled;
+        private bool _vibrationEnabled;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -25,10 +26,23 @@ namespace APP.Features.Settings
             }
         }
 
+        public bool VibrationEnabled
+        {
+            get => _vibrationEnabled;
+            set
+            {
+                if (_vibrationEnabled == value) return;
+                _vibrationEnabled = value;
+                _coordinator.UpdateVibrationEnabled(value);
+                OnPropertyChanged();
+            }
+        }
+
         public SettingsViewModel(PomodoroStateMachine coordinator)
         {
             _coordinator = coordinator;
             _strictModeEnabled = coordinator.Config.StrictModeEnabled;
+            _vibrationEnabled = coordinator.Config.VibrationEnabled;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? name = null)
