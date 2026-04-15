@@ -58,7 +58,7 @@
                 </VerticalStackLayout>
             </Grid>
 
-            <Label Text="Face down to start"
+            <Label Text="{Binding StartHintText}"
                    TextColor="{StaticResource FlipMutedText}"
                    FontSize="16"
                    HorizontalOptions="Center" />
@@ -71,6 +71,7 @@
                     Padding="24,8"
                     FontSize="16"
                     HorizontalOptions="Center"
+                    IsVisible="{Binding IsStartButtonVisible}"
                     Clicked="OnStartClicked" />
         </VerticalStackLayout>
 

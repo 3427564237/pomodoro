@@ -2,6 +2,7 @@ using APP.Core.Navigation;
 using APP.Core.Services;
 using APP.Core.StateMachine;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Maui.Devices;
 
 namespace APP.Features.Countdown
 {
@@ -32,6 +33,10 @@ namespace APP.Features.Countdown
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            ApplyKeepScreenOnSetting(_coordinator.Config.KeepScreenOnEnabled);
+#if ANDROID
+            MainActivity.RequestNotificationPermissionIfNeeded();
+#endif
             Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false });
             ViewModel.NavigateToMainRequested += OnNavigateToMain;
             _coordinator.ConfigChanged += OnConfigChanged;
@@ -44,6 +49,7 @@ namespace APP.Features.Countdown
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
+            ApplyKeepScreenOnSetting(false);
             StopFlipListening();
             _coordinator.ConfigChanged -= OnConfigChanged;
             ViewModel.NavigateToMainRequested -= OnNavigateToMain;
@@ -63,11 +69,17 @@ namespace APP.Features.Countdown
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
+                ApplyKeepScreenOnSetting(config.KeepScreenOnEnabled);
                 if (config.StrictModeEnabled)
                     StartFlipListening();
                 else
                     StopFlipListening();
             });
+        }
+
+        private static void ApplyKeepScreenOnSetting(bool enabled)
+        {
+            DeviceDisplay.Current.KeepScreenOn = enabled;
         }
 
         private void StartFlipListening()

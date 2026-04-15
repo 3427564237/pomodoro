@@ -9,6 +9,7 @@ namespace APP.Features.Settings
         private readonly PomodoroStateMachine _coordinator;
         private bool _strictModeEnabled;
         private bool _vibrationEnabled;
+        private bool _keepScreenOnEnabled;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -38,11 +39,24 @@ namespace APP.Features.Settings
             }
         }
 
+        public bool KeepScreenOnEnabled
+        {
+            get => _keepScreenOnEnabled;
+            set
+            {
+                if (_keepScreenOnEnabled == value) return;
+                _keepScreenOnEnabled = value;
+                _coordinator.UpdateKeepScreenOnEnabled(value);
+                OnPropertyChanged();
+            }
+        }
+
         public SettingsViewModel(PomodoroStateMachine coordinator)
         {
             _coordinator = coordinator;
             _strictModeEnabled = coordinator.Config.StrictModeEnabled;
             _vibrationEnabled = coordinator.Config.VibrationEnabled;
+            _keepScreenOnEnabled = coordinator.Config.KeepScreenOnEnabled;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? name = null)
