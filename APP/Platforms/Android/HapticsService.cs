@@ -24,7 +24,7 @@ namespace APP.Platforms.Android
             _coordinator.ConfigChanged += OnConfigChanged;
             ApplyVibrationSetting(_coordinator.Config);
         }
-
+        // read current config 
         private void OnConfigChanged(RuntimeConfig config)
         {
             ApplyVibrationSetting(config);

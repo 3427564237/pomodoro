@@ -14,8 +14,8 @@ namespace APP.Core.Services
         private readonly double _faceDownThreshold;
         private readonly double _faceUpThreshold;
         private readonly double _liftedFromDownThreshold;
-        private readonly TimeSpan _debounce;
-        private readonly TimeSpan _cooldown;
+        private readonly TimeSpan _debounce;//防抖
+        private readonly TimeSpan _cooldown;//冷却，避免连续翻转
 
         private FlipOrientation _confirmedOrientation = FlipOrientation.Unknown;
         private FlipOrientation _candidateOrientation = FlipOrientation.Unknown;
@@ -29,7 +29,7 @@ namespace APP.Core.Services
 
         public FlipDetector()
             : this(
-                  Constants.FaceDownThreshold,
+                  Constants .FaceDownThreshold,
                   Constants.FaceUpThreshold,
                   Constants.LiftedFromDownThreshold,
                   Constants.FlipDebounce,
@@ -49,6 +49,7 @@ namespace APP.Core.Services
 
         public void OnAccelerometerReading(double zNormalized, DateTimeOffset timestamp)
         {
+            // perform a rough classification of the raw Z-values
             var raw = ClassifyRaw(zNormalized);
 
             if (raw == FlipOrientation.Unknown)
@@ -106,7 +107,8 @@ namespace APP.Core.Services
                  || _confirmedOrientation == FlipOrientation.Unknown)
                 && z > _liftedFromDownThreshold)
                 return FlipOrientation.FaceUp;
-
+            // easier to recognise the action of ‘picking up a mobile phone’ 
+            
             if (z >= _faceUpThreshold)
                 return FlipOrientation.FaceUp;
 
