@@ -30,7 +30,7 @@ namespace APP
 
             var pomodoroStateMachine = new PomodoroStateMachine(timerEngine,
                 () => flipSensorService.CurrentOrientation == FlipOrientation.FaceUp);
-            var hapticsService = new HapticsService(pomodoroStateMachine);
+            var overlayAlertService = new OverlayAlertService(pomodoroStateMachine);
 
             // 注册页面和ViewModel
             builder.Services.AddSingleton<AppShell>();
@@ -49,7 +49,7 @@ namespace APP
             // 提供服务实例给应用
             builder.Services.AddSingleton(pomodoroStateMachine);
             builder.Services.AddSingleton(timerEngine);
-            builder.Services.AddSingleton(hapticsService);
+            builder.Services.AddSingleton(overlayAlertService);
             builder.Services.AddSingleton<IFlipSensorService>(flipSensorService);
 
             var app = builder.Build();

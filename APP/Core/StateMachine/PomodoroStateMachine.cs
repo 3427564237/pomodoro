@@ -78,6 +78,14 @@ namespace APP.Core.StateMachine
             ConfigChanged?.Invoke(_config);
         }
 
+        public void UpdateKeepScreenOnEnabled(bool enabled)
+        {
+            if (_config.KeepScreenOnEnabled == enabled) return;
+
+            _config.KeepScreenOnEnabled = enabled;
+            ConfigChanged?.Invoke(_config);
+        }
+
         public bool RequestStartFocus()
         {
             if (HasActiveSession) return false;

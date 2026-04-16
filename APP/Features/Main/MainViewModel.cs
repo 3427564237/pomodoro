@@ -10,6 +10,8 @@ namespace APP.Features.Main
         private readonly PomodoroStateMachine _coordinator;
         private string _timerDisplay = string.Empty;
         private string _configSummary = string.Empty;
+        private bool _isStartButtonVisible;
+        private string _startHintText = "Face down to start";
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -23,6 +25,18 @@ namespace APP.Features.Main
         {
             get => _configSummary;
             private set { if (_configSummary != value) { _configSummary = value; OnPropertyChanged(); } }
+        }
+
+        public bool IsStartButtonVisible
+        {
+            get => _isStartButtonVisible;
+            private set { if (_isStartButtonVisible != value) { _isStartButtonVisible = value; OnPropertyChanged(); } }
+        }
+
+        public string StartHintText
+        {
+            get => _startHintText;
+            private set { if (_startHintText != value) { _startHintText = value; OnPropertyChanged(); } }
         }
 
         public MainViewModel(PomodoroStateMachine coordinator)
@@ -52,12 +66,15 @@ namespace APP.Features.Main
         {
             var config = _coordinator.Config;
             var totalMinutes = (int)config.FocusDuration.TotalMinutes;
-            // 首页只先给用户看单轮专注时长，入口信息保持轻一点。
             // The home screen only shows the focus length for one round to keep the entry view light.
             TimerDisplay = $"{totalMinutes:D2}:00";
             ConfigSummary = config.Cycles == 1
                 ? $"1 cycle · {(int)config.BreakDuration.TotalMinutes} min break"
                 : $"{config.Cycles} cycles · {(int)config.BreakDuration.TotalMinutes} min break";
+            IsStartButtonVisible = !config.StrictModeEnabled;
+            StartHintText = config.StrictModeEnabled
+                ? "Face down to start"
+                : "Face down or tap Start";
         }
 
         private void OnPropertyChanged([CallerMemberName] string? name = null)

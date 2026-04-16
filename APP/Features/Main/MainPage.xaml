@@ -6,46 +6,65 @@
              Shell.NavBarIsVisible="False"
              BackgroundColor="{AppThemeBinding Light={StaticResource FlipSurface}, Dark={StaticResource FlipSurfaceDark}}">
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="24,48,24,24">
+    <Grid RowDefinitions="Auto,*,Auto"
+          RowSpacing="0"
+          Padding="24,24,24,28">
 
-        <!-- Top: Settings gear -->
-        <Button Grid.Row="0"
-                Text="⚙"
-                FontSize="24"
-                BackgroundColor="{StaticResource FlipTransparent}"
-                TextColor="{StaticResource Gray500}"
-                BorderWidth="0"
-                Padding="8"
-                HorizontalOptions="Start"
-                Clicked="OnSettingsClicked" />
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*,Auto"
+              Padding="0,0,0,8">
+            <Border Grid.Column="1"
+                    WidthRequest="48"
+                    HeightRequest="48"
+                    BackgroundColor="{StaticResource FlipTransparent}"
+                    Stroke="{StaticResource Gray200}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 24"
+                    HorizontalOptions="End"
+                    VerticalOptions="Start">
+                <Button Text="⚙"
+                        FontSize="20"
+                        BackgroundColor="{StaticResource FlipTransparent}"
+                        TextColor="{StaticResource Gray500}"
+                        BorderWidth="0"
+                        Padding="0"
+                        Clicked="OnSettingsClicked" />
+            </Border>
+        </Grid>
 
-        <!-- Center: Timer circle + info -->
         <VerticalStackLayout Grid.Row="1"
                              HorizontalOptions="Center"
                              VerticalOptions="Center"
-                             Spacing="18">
+                             MaximumWidthRequest="360"
+                             Margin="0,-12,0,0"
+                             Spacing="22">
 
-            <!-- Timer circle (tap → TimeSettings) -->
-            <Grid WidthRequest="300" HeightRequest="300"
-                  HorizontalOptions="Center" VerticalOptions="Center">
+            <Grid WidthRequest="308"
+                  HeightRequest="308"
+                  HorizontalOptions="Center"
+                  VerticalOptions="Center">
                 <Grid.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTimerCircleTapped" />
                 </Grid.GestureRecognizers>
 
-                <Border WidthRequest="300" HeightRequest="300"
+                <Border WidthRequest="308"
+                        HeightRequest="308"
                         BackgroundColor="{StaticResource FlipRingOuter}"
                         StrokeThickness="0"
-                        StrokeShape="RoundRectangle 150" />
+                        StrokeShape="RoundRectangle 154" />
 
-                <Border WidthRequest="272" HeightRequest="272"
+                <Border WidthRequest="278"
+                        HeightRequest="278"
                         BackgroundColor="{StaticResource FlipRingInner}"
-                        Stroke="{StaticResource FlipOnPrimary}" StrokeThickness="2"
-                        StrokeShape="RoundRectangle 136"
-                        HorizontalOptions="Center" VerticalOptions="Center" />
+                        Stroke="{StaticResource FlipOnPrimary}"
+                        StrokeThickness="2"
+                        StrokeShape="RoundRectangle 139"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
 
                 <VerticalStackLayout HorizontalOptions="Center"
                                      VerticalOptions="Center"
-                                     Spacing="4">
+                                     Spacing="6">
                     <Label Text="{Binding TimerDisplay}"
                            TextColor="{StaticResource FlipOnPrimary}"
                            FontSize="62"
@@ -58,24 +77,30 @@
                 </VerticalStackLayout>
             </Grid>
 
-            <Label Text="Face down to start"
-                   TextColor="{StaticResource FlipMutedText}"
-                   FontSize="16"
-                   HorizontalOptions="Center" />
+            <VerticalStackLayout HorizontalOptions="Center"
+                                 Spacing="12">
+                <Label Text="{Binding StartHintText}"
+                       TextColor="{StaticResource FlipMutedText}"
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
 
-            <!-- TODO(M2): Remove or wrap in DEBUG-only build; replaced by Flip-to-Start -->
-            <Button Text="▶  Start"
-                    BackgroundColor="{StaticResource FlipRingInner}"
-                    TextColor="{StaticResource FlipOnPrimary}"
-                    CornerRadius="20"
-                    Padding="24,8"
-                    FontSize="16"
-                    HorizontalOptions="Center"
-                    Clicked="OnStartClicked" />
+                <Button Text="▶ Start"
+                        BackgroundColor="{StaticResource FlipRingInner}"
+                        TextColor="{StaticResource FlipOnPrimary}"
+                        CornerRadius="22"
+                        Padding="28,10"
+                        FontSize="16"
+                        HorizontalOptions="Center"
+                        IsVisible="{Binding IsStartButtonVisible}"
+                        Clicked="OnStartClicked" />
+            </VerticalStackLayout>
         </VerticalStackLayout>
 
-        <!-- Bottom: Placeholder navigation bar -->
-        <Grid Grid.Row="2" ColumnDefinitions="*,*,*,*" Padding="0,12,0,0">
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,*,*,*"
+              Padding="0,12,0,0"
+              IsVisible="False">
             <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
                 <Button Text="📅" FontSize="22"
                         BackgroundColor="{StaticResource FlipTransparent}" BorderWidth="0" Padding="4"

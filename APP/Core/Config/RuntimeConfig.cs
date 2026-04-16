@@ -8,6 +8,7 @@ namespace APP.Core.Config
         public TimeSpan BreakDuration { get; set; }
         public bool StrictModeEnabled { get; set; } = true;
         public bool VibrationEnabled { get; set; } = true;
+        public bool KeepScreenOnEnabled { get; set; } = true;
 
         public RuntimeConfig(int cycles, TimeSpan focusDuration, TimeSpan breakDuration)
         {
@@ -21,7 +22,8 @@ namespace APP.Core.Config
             return new RuntimeConfig(Cycles, FocusDuration, BreakDuration)
             {
                 StrictModeEnabled = StrictModeEnabled,
-                VibrationEnabled = VibrationEnabled
+                VibrationEnabled = VibrationEnabled,
+                KeepScreenOnEnabled = KeepScreenOnEnabled
             };
         }
     }

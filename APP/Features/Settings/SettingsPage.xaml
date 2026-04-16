@@ -34,6 +34,16 @@
                     VerticalOptions="Center" />
         </Grid>
 
+        <Grid ColumnDefinitions="*,Auto" Padding="0,12">
+            <Label Text="Keep Screen On"
+                   FontSize="16"
+                   VerticalOptions="Center"
+                   Grid.Column="0" />
+            <Switch IsToggled="{Binding KeepScreenOnEnabled}"
+                    Grid.Column="1"
+                    VerticalOptions="Center" />
+        </Grid>
+
         <Label Text="More settings coming soon (Theme, etc.)"
                FontSize="14"
                TextColor="{StaticResource Gray400}"
