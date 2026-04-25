@@ -4,6 +4,7 @@ namespace APP.Core.Config
     {
         Focus,
         Break,
-        Danger
+        Danger,
+        Done
     }
 }

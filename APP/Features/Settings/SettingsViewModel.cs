@@ -13,30 +13,46 @@ namespace APP.Features.Settings
         private bool _vibrationEnabled;
         private bool _keepScreenOnEnabled;
         private FlipTheme _theme;
+        private FlipTheme? _pressedTheme;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public Color TropicalDotColor => ThemeService.GetPalette(FlipTheme.TropicalSunrise).FocusPrimary;
         public Color VioletDotColor => ThemeService.GetPalette(FlipTheme.Violet).FocusPrimary;
         public Color TropicalOptionBackground => IsTropicalSelected
             ? ThemeService.GetPalette(FlipTheme.TropicalSunrise).FocusSoft
+            : IsTropicalPressed
+                ? CurrentPalette.FocusSoft
             : Color.FromArgb("#F7F7F7");
         public Color VioletOptionBackground => IsVioletSelected
             ? ThemeService.GetPalette(FlipTheme.Violet).FocusSoft
+            : IsVioletPressed
+                ? CurrentPalette.FocusSoft
             : Color.FromArgb("#F7F7F7");
         public Color TropicalOptionStroke => IsTropicalSelected
             ? ThemeService.GetPalette(FlipTheme.TropicalSunrise).FocusPrimary
+            : IsTropicalPressed
+                ? CurrentPalette.FocusPrimary
             : Color.FromArgb("#E1E1E1");
         public Color VioletOptionStroke => IsVioletSelected
             ? ThemeService.GetPalette(FlipTheme.Violet).FocusPrimary
+            : IsVioletPressed
+                ? CurrentPalette.FocusPrimary
             : Color.FromArgb("#E1E1E1");
         public Color TropicalOptionTextColor => IsTropicalSelected
             ? ThemeService.GetPalette(FlipTheme.TropicalSunrise).FocusPrimary
+            : IsTropicalPressed
+                ? CurrentPalette.FocusPrimary
             : Color.FromArgb("#6E6E6E");
         public Color VioletOptionTextColor => IsVioletSelected
             ? ThemeService.GetPalette(FlipTheme.Violet).FocusPrimary
+            : IsVioletPressed
+                ? CurrentPalette.FocusPrimary
             : Color.FromArgb("#6E6E6E");
+        private FlipThemePalette CurrentPalette => ThemeService.GetPalette(_theme);
         private bool IsTropicalSelected => _theme == FlipTheme.TropicalSunrise;
         private bool IsVioletSelected => _theme == FlipTheme.Violet;
+        private bool IsTropicalPressed => _pressedTheme == FlipTheme.TropicalSunrise;
+        private bool IsVioletPressed => _pressedTheme == FlipTheme.Violet;
 
         public bool StrictModeEnabled
         {
@@ -85,12 +101,67 @@ namespace APP.Features.Settings
             _theme = coordinator.Config.Theme;
         }
 
+        public void Activate()
+        {
+            _coordinator.ConfigChanged -= OnConfigChanged;
+            _coordinator.ConfigChanged += OnConfigChanged;
+            SyncFromConfig(_coordinator.Config);
+        }
+
+        public void Deactivate()
+        {
+            _coordinator.ConfigChanged -= OnConfigChanged;
+            SetPressedTheme(null);
+        }
+
         public void SelectTheme(FlipTheme theme)
         {
-            if (_theme == theme) return;
+            if (_theme != theme)
+            {
+                _theme = theme;
+                NotifyThemeOptionProperties();
+            }
 
-            _theme = theme;
             _coordinator.UpdateTheme(theme);
+            NotifyThemeOptionProperties();
+        }
+
+        public void SetPressedTheme(FlipTheme? theme)
+        {
+            if (_pressedTheme == theme) return;
+
+            _pressedTheme = theme;
+            NotifyThemeOptionProperties();
+        }
+
+        private void OnConfigChanged(RuntimeConfig config)
+        {
+            MainThread.BeginInvokeOnMainThread(() => SyncFromConfig(config));
+        }
+
+        private void SyncFromConfig(RuntimeConfig config)
+        {
+            if (_strictModeEnabled != config.StrictModeEnabled)
+            {
+                _strictModeEnabled = config.StrictModeEnabled;
+                OnPropertyChanged(nameof(StrictModeEnabled));
+            }
+
+            if (_vibrationEnabled != config.VibrationEnabled)
+            {
+                _vibrationEnabled = config.VibrationEnabled;
+                OnPropertyChanged(nameof(VibrationEnabled));
+            }
+
+            if (_keepScreenOnEnabled != config.KeepScreenOnEnabled)
+            {
+                _keepScreenOnEnabled = config.KeepScreenOnEnabled;
+                OnPropertyChanged(nameof(KeepScreenOnEnabled));
+            }
+
+            if (_theme != config.Theme)
+                _theme = config.Theme;
+
             NotifyThemeOptionProperties();
         }
 

@@ -25,6 +25,8 @@ namespace APP
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            AndroidThemeBridge.ConfigureHandlers();
+
             // 初始化核心服务
             var timerEngine = new TimerEngine();
             var flipSensorService = new FlipSensorService();

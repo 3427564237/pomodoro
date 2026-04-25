@@ -392,6 +392,9 @@ namespace APP.Core.StateMachine
             if (_currentOverlay == OverlayState.HaveABreak)
                 return ThemeTone.Break;
 
+            if (_currentOverlay == OverlayState.YouDidIt)
+                return ThemeTone.Done;
+
             if (_currentPhase == PhaseState.Break)
                 return ThemeTone.Break;
 

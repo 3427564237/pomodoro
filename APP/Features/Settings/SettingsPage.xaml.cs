@@ -20,10 +20,29 @@ namespace APP.Features.Settings
 
         private SettingsViewModel ViewModel => (SettingsViewModel)BindingContext;
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            ViewModel.Activate();
+        }
+
+        protected override void OnDisappearing()
+        {
+            ViewModel.Deactivate();
+            base.OnDisappearing();
+        }
+
         private void OnTropicalThemeTapped(object sender, TappedEventArgs e)
-            => ViewModel.SelectTheme(FlipTheme.TropicalSunrise);
+            => SelectTheme(FlipTheme.TropicalSunrise);
 
         private void OnVioletThemeTapped(object sender, TappedEventArgs e)
-            => ViewModel.SelectTheme(FlipTheme.Violet);
+            => SelectTheme(FlipTheme.Violet);
+
+        private void SelectTheme(FlipTheme theme)
+        {
+            ViewModel.SetPressedTheme(theme);
+            ViewModel.SelectTheme(theme);
+            Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(90), () => ViewModel.SetPressedTheme(null));
+        }
     }
 }

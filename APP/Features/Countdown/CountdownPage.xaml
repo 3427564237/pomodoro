@@ -10,7 +10,8 @@
         <VerticalStackLayout Grid.Row="0"
                              HorizontalOptions="Center"
                              VerticalOptions="Center"
-                             Spacing="18">
+                             Spacing="20"
+                             Margin="0,-18,0,0">
 
             <Grid WidthRequest="300" HeightRequest="300"
                   HorizontalOptions="Center" VerticalOptions="Center">
@@ -36,12 +37,13 @@
 
             <Label Text="{Binding PhaseLabel}"
                    TextColor="{DynamicResource FlipMutedText}"
-                   FontSize="16"
+                   FontSize="17"
                    HorizontalOptions="Center" />
         </VerticalStackLayout>
 
-        <!-- Overlay (HaveABreak / YouDidIt) -->
+        <!-- Overlay reminders -->
         <Grid Grid.Row="0"
+              Grid.RowSpan="2"
               IsVisible="{Binding IsOverlayVisible}"
               BackgroundColor="{DynamicResource FlipOverlayBackground}"
               HorizontalOptions="Fill"
@@ -51,22 +53,30 @@
                 <TapGestureRecognizer Tapped="OnOverlayTapped" />
             </Grid.GestureRecognizers>
 
-            <VerticalStackLayout HorizontalOptions="Center"
-                                 VerticalOptions="Center"
-                                 Spacing="12">
-
-                <Border WidthRequest="160" HeightRequest="160"
-                        BackgroundColor="{DynamicResource FlipRingInner}"
-                        StrokeThickness="0"
-                        StrokeShape="RoundRectangle 80"
-                        HorizontalOptions="Center" />
-
+            <Grid WidthRequest="212"
+                  HeightRequest="212"
+                  Margin="0,-80,0,0"
+                  HorizontalOptions="Center"
+                  VerticalOptions="Center">
+                <Path Data="M165.929 31.4059C172.405 21.1102 187.595 21.1102 194.071 31.4058L209.593 56.085C213.851 62.8538 222.44 65.6057 229.918 62.5973L257.186 51.6288C268.562 47.0529 280.852 55.8579 279.954 67.9408L277.802 96.9039C277.211 104.848 282.519 112.052 290.363 113.953L318.961 120.885C330.892 123.777 335.586 138.024 327.658 147.279L308.653 169.463C303.44 175.547 303.44 184.453 308.653 190.537L327.658 212.721C335.586 221.976 330.892 236.223 318.961 239.115L290.363 246.046C282.519 247.947 277.211 255.152 277.802 263.096L279.954 292.059C280.852 304.142 268.562 312.947 257.186 308.371L229.918 297.402C222.44 294.394 213.851 297.146 209.593 303.915L194.071 328.594C187.595 338.89 172.405 338.89 165.929 328.594L150.407 303.915C146.149 297.146 137.561 294.394 130.082 297.402L102.814 308.371C91.4379 312.947 79.1483 304.142 80.0462 292.059L82.1984 263.096C82.7887 255.152 77.4806 247.947 69.6369 246.046L41.0387 239.115C29.1081 236.223 24.4139 221.976 32.3423 212.721L51.3471 190.537C56.5596 184.453 56.5596 175.547 51.3471 169.463L32.3423 147.279C24.4139 138.024 29.1081 123.777 41.0387 120.885L69.6369 113.953C77.4806 112.052 82.7887 104.848 82.1984 96.9039L80.0462 67.9408C79.1483 55.8579 91.4379 47.0529 102.814 51.6288L130.082 62.5973C137.56 65.6057 146.149 62.8538 150.407 56.085L165.929 31.4059Z"
+                      Fill="{Binding OverlayBadgeBrush}"
+                      Aspect="Uniform"
+                      WidthRequest="212"
+                      HeightRequest="212"
+                      HorizontalOptions="Center"
+                      VerticalOptions="Center"
+                      Opacity="0.98" />
                 <Label Text="{Binding OverlayText}"
-                       TextColor="{DynamicResource FlipOnPrimary}"
+                       TextColor="{DynamicResource FlipOverlayText}"
                        FontSize="28"
                        FontAttributes="Bold"
-                       HorizontalOptions="Center" />
-            </VerticalStackLayout>
+                       WidthRequest="150"
+                       LineBreakMode="WordWrap"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center" />
+            </Grid>
         </Grid>
 
         <!-- Bottom control buttons -->
@@ -76,17 +86,25 @@
                                Padding="0,0,0,32"
                                IsVisible="{Binding IsControlsPanelVisible}">
             <Button Text="Stop" Clicked="OnStopClicked"
-                    BackgroundColor="{DynamicResource FlipRingInner}"
-                    TextColor="{DynamicResource FlipOnPrimary}"
+                    BackgroundColor="{DynamicResource FlipStopBackground}"
+                    TextColor="{DynamicResource FlipDanger}"
+                    BorderColor="{DynamicResource FlipStopBorder}"
+                    BorderWidth="1"
+                    CornerRadius="20"
                     WidthRequest="90" />
             <Button Text="{Binding PauseButtonText}" Clicked="OnPauseClicked"
                     BackgroundColor="{DynamicResource FlipRingInner}"
                     TextColor="{DynamicResource FlipOnPrimary}"
+                    CornerRadius="20"
+                    FontAttributes="Bold"
                     IsEnabled="{Binding AreControlsEnabled}"
                     WidthRequest="90" />
             <Button Text="Skip" Clicked="OnSkipClicked"
-                    BackgroundColor="{DynamicResource FlipRingInner}"
-                    TextColor="{DynamicResource FlipOnPrimary}"
+                    BackgroundColor="{DynamicResource FlipSecondaryActionBackground}"
+                    TextColor="{DynamicResource FlipSecondaryActionText}"
+                    BorderColor="{DynamicResource FlipFocusedStroke}"
+                    BorderWidth="1"
+                    CornerRadius="20"
                     IsEnabled="{Binding AreControlsEnabled}"
                     WidthRequest="90" />
         </HorizontalStackLayout>

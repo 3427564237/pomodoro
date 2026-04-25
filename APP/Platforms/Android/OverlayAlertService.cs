@@ -3,9 +3,13 @@ using APP.Core.Models;
 using APP.Core.StateMachine;
 using Android.App;
 using Android.Content;
+using AContext = Android.Content.Context;
 using Application = Android.App.Application;
 using Build = Android.OS.Build;
 using BuildVersionCodes = Android.OS.BuildVersionCodes;
+using VibrationEffect = Android.OS.VibrationEffect;
+using Vibrator = Android.OS.Vibrator;
+using VibratorManager = Android.OS.VibratorManager;
 
 namespace APP.Platforms.Android
 {
@@ -31,6 +35,7 @@ namespace APP.Platforms.Android
             _coordinator = coordinator;
             _coordinator.ConfigChanged += OnConfigChanged;
             _coordinator.OverlayChanged += OnOverlayChanged;
+            MainActivity.ForegroundChanged += OnForegroundChanged;
             _notificationManager = Application.Context.GetSystemService(Context.NotificationService) as NotificationManager;
             EnsureNotificationChannel();
         }
@@ -47,16 +52,31 @@ namespace APP.Platforms.Android
                 PlayVibrationForOverlay(_coordinator.CurrentOverlay);
         }
 
+        private void OnForegroundChanged(bool isForeground)
+        {
+            if (isForeground)
+            {
+                CancelBackgroundNotification();
+                PlayVibrationForOverlay(_coordinator.CurrentOverlay);
+                return;
+            }
+
+            StopVibration();
+        }
+
         private void OnOverlayChanged(OverlayState overlay)
         {
             if (overlay == OverlayState.None)
             {
                 StopVibration();
+                if (MainActivity.IsAppInForeground)
+                    CancelBackgroundNotification();
                 return;
             }
 
             if (MainActivity.IsAppInForeground)
             {
+                CancelBackgroundNotification();
                 PlayVibrationForOverlay(overlay);
                 return;
             }
@@ -113,7 +133,7 @@ namespace APP.Platforms.Android
         private void ShowBackgroundNotification(OverlayState overlay)
         {
             var notificationManager = _notificationManager;
-            if (notificationManager == null || !CanPostNotifications())
+            if (notificationManager == null || MainActivity.IsAppInForeground || !CanPostNotifications())
                 return;
 
             var (title, body) = overlay switch
@@ -156,6 +176,11 @@ namespace APP.Platforms.Android
             notificationManager.Notify(OverlayAlertNotificationId, notification);
         }
 
+        private void CancelBackgroundNotification()
+        {
+            _notificationManager?.Cancel(OverlayAlertNotificationId);
+        }
+
         private static bool CanPostNotifications()
         {
             if (Build.VERSION.SdkInt < BuildVersionCodes.Tiramisu)
@@ -187,7 +212,7 @@ namespace APP.Platforms.Android
                 {
                     try
                     {
-                        Vibration.Default.Vibrate(pulse);
+                        VibrateForeground(pulse);
                     }
                     catch (Exception ex)
                     {
@@ -216,7 +241,7 @@ namespace APP.Platforms.Android
 
             try
             {
-                Vibration.Default.Cancel();
+                CancelForegroundVibration();
             }
             catch (Exception ex)
             {
@@ -240,10 +265,43 @@ namespace APP.Platforms.Android
             cts.Dispose();
         }
 
+        private static Vibrator? GetVibrator()
+        {
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.S)
+            {
+                var manager = Application.Context.GetSystemService(AContext.VibratorManagerService) as VibratorManager;
+                return manager?.DefaultVibrator;
+            }
+
+            return Application.Context.GetSystemService(AContext.VibratorService) as Vibrator;
+        }
+
+        private static void VibrateForeground(TimeSpan duration)
+        {
+            var vibrator = GetVibrator();
+            if (vibrator == null || !vibrator.HasVibrator)
+                return;
+
+            var milliseconds = Math.Max(1, (long)duration.TotalMilliseconds);
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                vibrator.Vibrate(VibrationEffect.CreateOneShot(milliseconds, VibrationEffect.DefaultAmplitude));
+                return;
+            }
+
+            vibrator.Vibrate(milliseconds);
+        }
+
+        private static void CancelForegroundVibration()
+        {
+            GetVibrator()?.Cancel();
+        }
+
         public void Dispose()
         {
             _coordinator.OverlayChanged -= OnOverlayChanged;
             _coordinator.ConfigChanged -= OnConfigChanged;
+            MainActivity.ForegroundChanged -= OnForegroundChanged;
             StopVibration();
         }
     }

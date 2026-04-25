@@ -53,9 +53,19 @@
     <Color x:Key="FlipRingText">#EFFFFD</Color>
     <Color x:Key="FlipMutedText">#2EC4B6</Color>
     <Color x:Key="FlipAccent">#FF9F1C</Color>
+    <Color x:Key="FlipDone">#2EC4B6</Color>
+    <Color x:Key="FlipActivePrimary">#2EC4B6</Color>
+    <Color x:Key="FlipActiveSoft">#CBF3F0</Color>
+    <Color x:Key="FlipPressedBackground">#242EC4B6</Color>
+    <Color x:Key="FlipFocusedStroke">#2EC4B6</Color>
+    <Color x:Key="FlipSecondaryActionBackground">#1F2EC4B6</Color>
+    <Color x:Key="FlipSecondaryActionText">#2EC4B6</Color>
+    <Color x:Key="FlipStopBackground">#1AE71D36</Color>
+    <Color x:Key="FlipStopBorder">#61E71D36</Color>
     <Color x:Key="FlipOnPrimary">White</Color>
     <Color x:Key="FlipTransparent">Transparent</Color>
     <Color x:Key="FlipSurface">White</Color>
     <Color x:Key="FlipSurfaceDark">#1f1f1f</Color>
-    <Color x:Key="FlipOverlayBackground">#CC2EC4B6</Color>
+    <Color x:Key="FlipOverlayBackground">White</Color>
+    <Color x:Key="FlipOverlayText">White</Color>
 </ResourceDictionary>

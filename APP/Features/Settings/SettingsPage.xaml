@@ -25,13 +25,12 @@
                            FontAttributes="Bold"
                            TextColor="{StaticResource Gray900}" />
                     <Label Text="Warn me if I pick up the phone during focus."
-                           FontSize="13"
+                           FontSize="14"
+                           LineHeight="1.15"
                            TextColor="{StaticResource Gray500}" />
                 </VerticalStackLayout>
                 <Switch Grid.Column="1"
                         IsToggled="{Binding StrictModeEnabled}"
-                        OnColor="{DynamicResource FlipRingOuter}"
-                        ThumbColor="{DynamicResource FlipRingInner}"
                         VerticalOptions="Center" />
             </Grid>
 
@@ -44,8 +43,6 @@
                        Grid.Column="0" />
                 <Switch Grid.Column="1"
                         IsToggled="{Binding VibrationEnabled}"
-                        OnColor="{DynamicResource FlipRingOuter}"
-                        ThumbColor="{DynamicResource FlipRingInner}"
                         VerticalOptions="Center" />
             </Grid>
 
@@ -58,8 +55,6 @@
                        Grid.Column="0" />
                 <Switch Grid.Column="1"
                         IsToggled="{Binding KeepScreenOnEnabled}"
-                        OnColor="{DynamicResource FlipRingOuter}"
-                        ThumbColor="{DynamicResource FlipRingInner}"
                         VerticalOptions="Center" />
             </Grid>
 

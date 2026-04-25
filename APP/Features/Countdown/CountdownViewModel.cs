@@ -1,7 +1,10 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using APP.Core.Config;
 using APP.Core.Models;
 using APP.Core.StateMachine;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 
 namespace APP.Features.Countdown
 {
@@ -15,6 +18,8 @@ namespace APP.Features.Countdown
         private bool _areControlsEnabled;
         private bool _isOverlayVisible;
         private string _overlayText = string.Empty;
+        private string _overlayBadgeSource = "overlay_badge_focus.svg";
+        private SolidColorBrush _overlayBadgeBrush = new(ThemeService.GetPalette(FlipTheme.TropicalSunrise).FocusPrimary);
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public event Action? NavigateToMainRequested;
@@ -63,6 +68,18 @@ namespace APP.Features.Countdown
         {
             get => _overlayText;
             private set { if (_overlayText != value) { _overlayText = value; OnPropertyChanged(); } }
+        }
+
+        public string OverlayBadgeSource
+        {
+            get => _overlayBadgeSource;
+            private set { if (_overlayBadgeSource != value) { _overlayBadgeSource = value; OnPropertyChanged(); } }
+        }
+
+        public SolidColorBrush OverlayBadgeBrush
+        {
+            get => _overlayBadgeBrush;
+            private set { if (_overlayBadgeBrush.Color != value.Color) { _overlayBadgeBrush = value; OnPropertyChanged(); } }
         }
 
         public CountdownViewModel(PomodoroStateMachine coordinator)
@@ -193,18 +210,26 @@ namespace APP.Features.Countdown
             {
                 case OverlayState.PutMeDown:
                     OverlayText = "Put me down";
+                    OverlayBadgeSource = "overlay_badge_break.svg";
+                    OverlayBadgeBrush = new SolidColorBrush(GetOverlayBadgeColor(overlay));
                     IsOverlayVisible = true;
                     break;
                 case OverlayState.HaveABreak:
                     OverlayText = "Have a break";
+                    OverlayBadgeSource = "overlay_badge_break.svg";
+                    OverlayBadgeBrush = new SolidColorBrush(GetOverlayBadgeColor(overlay));
                     IsOverlayVisible = true;
                     break;
                 case OverlayState.YouDidIt:
                     OverlayText = "You did it";
+                    OverlayBadgeSource = "overlay_badge_done.svg";
+                    OverlayBadgeBrush = new SolidColorBrush(GetOverlayBadgeColor(overlay));
                     IsOverlayVisible = true;
                     break;
                 case OverlayState.BackToFocus:
                     OverlayText = "Back to focus";
+                    OverlayBadgeSource = GetFocusBadgeSource();
+                    OverlayBadgeBrush = new SolidColorBrush(GetOverlayBadgeColor(overlay));
                     IsOverlayVisible = true;
                     break;
                 default:
@@ -212,6 +237,25 @@ namespace APP.Features.Countdown
                     OverlayText = string.Empty;
                     break;
             }
+        }
+
+        private string GetFocusBadgeSource()
+            => _coordinator.Config.Theme == FlipTheme.Violet
+                ? "overlay_badge_violet.svg"
+                : "overlay_badge_focus.svg";
+
+        private Color GetOverlayBadgeColor(OverlayState overlay)
+        {
+            var palette = ThemeService.GetPalette(_coordinator.Config.Theme);
+
+            return overlay switch
+            {
+                OverlayState.PutMeDown => palette.Danger,
+                OverlayState.HaveABreak => palette.BreakPrimary,
+                OverlayState.YouDidIt => palette.FocusPrimary,
+                OverlayState.BackToFocus => palette.FocusPrimary,
+                _ => palette.FocusPrimary
+            };
         }
 
         private static string FormatTime(TimeSpan ts)

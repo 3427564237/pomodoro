@@ -19,9 +19,9 @@
                    HorizontalOptions="Center" />
 
             <!-- Cycles -->
-            <VerticalStackLayout Spacing="6">
+            <VerticalStackLayout Spacing="8">
                 <Label Text="Cycles"
-                       FontSize="14"
+                       FontSize="15"
                        TextColor="{DynamicResource FlipMutedText}" />
                 <Entry Text="{Binding CyclesText}"
                        Keyboard="Numeric"
@@ -31,9 +31,9 @@
             </VerticalStackLayout>
 
             <!-- Focus minutes -->
-            <VerticalStackLayout Spacing="6">
+            <VerticalStackLayout Spacing="8">
                 <Label Text="Focus (minutes)"
-                       FontSize="14"
+                       FontSize="15"
                        TextColor="{DynamicResource FlipMutedText}" />
                 <Entry Text="{Binding FocusMinutesText}"
                        Keyboard="Numeric"
@@ -43,9 +43,9 @@
             </VerticalStackLayout>
 
             <!-- Break minutes -->
-            <VerticalStackLayout Spacing="6">
+            <VerticalStackLayout Spacing="8">
                 <Label Text="Break (minutes)"
-                       FontSize="14"
+                       FontSize="15"
                        TextColor="{DynamicResource FlipMutedText}" />
                 <Entry Text="{Binding BreakMinutesText}"
                        Keyboard="Numeric"
