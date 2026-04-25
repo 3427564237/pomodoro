@@ -4,7 +4,7 @@
              x:Class="APP.Features.Main.MainPage"
              Title="FlipDoro"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="{AppThemeBinding Light={StaticResource FlipSurface}, Dark={StaticResource FlipSurfaceDark}}">
+             BackgroundColor="{DynamicResource FlipSurface}">
 
     <Grid RowDefinitions="Auto,*,Auto"
           RowSpacing="0"
@@ -16,7 +16,7 @@
             <Border Grid.Column="1"
                     WidthRequest="48"
                     HeightRequest="48"
-                    BackgroundColor="{StaticResource FlipTransparent}"
+                    BackgroundColor="{DynamicResource FlipTransparent}"
                     Stroke="{StaticResource Gray200}"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 24"
@@ -24,7 +24,7 @@
                     VerticalOptions="Start">
                 <Button Text="⚙"
                         FontSize="20"
-                        BackgroundColor="{StaticResource FlipTransparent}"
+                        BackgroundColor="{DynamicResource FlipTransparent}"
                         TextColor="{StaticResource Gray500}"
                         BorderWidth="0"
                         Padding="0"
@@ -49,14 +49,14 @@
 
                 <Border WidthRequest="308"
                         HeightRequest="308"
-                        BackgroundColor="{StaticResource FlipRingOuter}"
+                        BackgroundColor="{DynamicResource FlipRingOuter}"
                         StrokeThickness="0"
                         StrokeShape="RoundRectangle 154" />
 
                 <Border WidthRequest="278"
                         HeightRequest="278"
-                        BackgroundColor="{StaticResource FlipRingInner}"
-                        Stroke="{StaticResource FlipOnPrimary}"
+                        BackgroundColor="{DynamicResource FlipRingInner}"
+                        Stroke="{DynamicResource FlipOnPrimary}"
                         StrokeThickness="2"
                         StrokeShape="RoundRectangle 139"
                         HorizontalOptions="Center"
@@ -66,12 +66,12 @@
                                      VerticalOptions="Center"
                                      Spacing="6">
                     <Label Text="{Binding TimerDisplay}"
-                           TextColor="{StaticResource FlipOnPrimary}"
+                           TextColor="{DynamicResource FlipOnPrimary}"
                            FontSize="62"
                            FontAttributes="Bold"
                            HorizontalTextAlignment="Center" />
                     <Label Text="{Binding ConfigSummary}"
-                           TextColor="{StaticResource FlipRingText}"
+                           TextColor="{DynamicResource FlipRingText}"
                            FontSize="13"
                            HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
@@ -80,14 +80,14 @@
             <VerticalStackLayout HorizontalOptions="Center"
                                  Spacing="12">
                 <Label Text="{Binding StartHintText}"
-                       TextColor="{StaticResource FlipMutedText}"
+                       TextColor="{DynamicResource FlipMutedText}"
                        FontSize="16"
                        HorizontalOptions="Center"
                        HorizontalTextAlignment="Center" />
 
                 <Button Text="▶ Start"
-                        BackgroundColor="{StaticResource FlipRingInner}"
-                        TextColor="{StaticResource FlipOnPrimary}"
+                        BackgroundColor="{DynamicResource FlipRingInner}"
+                        TextColor="{DynamicResource FlipOnPrimary}"
                         CornerRadius="22"
                         Padding="28,10"
                         FontSize="16"
@@ -103,7 +103,7 @@
               IsVisible="False">
             <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
                 <Button Text="📅" FontSize="22"
-                        BackgroundColor="{StaticResource FlipTransparent}" BorderWidth="0" Padding="4"
+                        BackgroundColor="{DynamicResource FlipTransparent}" BorderWidth="0" Padding="4"
                         Clicked="OnCalendarClicked" />
                 <Label Text="Calendar" FontSize="10"
                        HorizontalOptions="Center"
@@ -111,7 +111,7 @@
             </VerticalStackLayout>
             <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
                 <Button Text="📓" FontSize="22"
-                        BackgroundColor="{StaticResource FlipTransparent}" BorderWidth="0" Padding="4"
+                        BackgroundColor="{DynamicResource FlipTransparent}" BorderWidth="0" Padding="4"
                         Clicked="OnJournalClicked" />
                 <Label Text="Journal" FontSize="10"
                        HorizontalOptions="Center"
@@ -119,7 +119,7 @@
             </VerticalStackLayout>
             <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
                 <Button Text="📊" FontSize="22"
-                        BackgroundColor="{StaticResource FlipTransparent}" BorderWidth="0" Padding="4"
+                        BackgroundColor="{DynamicResource FlipTransparent}" BorderWidth="0" Padding="4"
                         Clicked="OnStatsClicked" />
                 <Label Text="Stats" FontSize="10"
                        HorizontalOptions="Center"
@@ -127,7 +127,7 @@
             </VerticalStackLayout>
             <VerticalStackLayout Grid.Column="3" HorizontalOptions="Center" Spacing="2">
                 <Button Text="✅" FontSize="22"
-                        BackgroundColor="{StaticResource FlipTransparent}" BorderWidth="0" Padding="4"
+                        BackgroundColor="{DynamicResource FlipTransparent}" BorderWidth="0" Padding="4"
                         Clicked="OnTodoClicked" />
                 <Label Text="To-do" FontSize="10"
                        HorizontalOptions="Center"

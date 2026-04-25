@@ -1,3 +1,4 @@
+using APP.Core.Config;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace APP.Features.Settings
@@ -16,5 +17,13 @@ namespace APP.Features.Settings
             // This page is just a light settings panel for now, so a simple bound view model is enough.
             BindingContext = viewModel;
         }
+
+        private SettingsViewModel ViewModel => (SettingsViewModel)BindingContext;
+
+        private void OnTropicalThemeTapped(object sender, TappedEventArgs e)
+            => ViewModel.SelectTheme(FlipTheme.TropicalSunrise);
+
+        private void OnVioletThemeTapped(object sender, TappedEventArgs e)
+            => ViewModel.SelectTheme(FlipTheme.Violet);
     }
 }

@@ -1,5 +1,6 @@
 using APP.Core.Services;
 using APP.Core.StateMachine;
+using APP.Core.Config;
 using APP.Features.Main;
 using APP.Features.Countdown;
 using APP.Features.TimeSettings;
@@ -27,9 +28,15 @@ namespace APP
             // 初始化核心服务
             var timerEngine = new TimerEngine();
             var flipSensorService = new FlipSensorService();
+            var settingsStore = new AppSettingsStore();
+            var themeService = new ThemeService();
+            var initialConfig = settingsStore.Load();
 
             var pomodoroStateMachine = new PomodoroStateMachine(timerEngine,
-                () => flipSensorService.CurrentOrientation == FlipOrientation.FaceUp);
+                () => flipSensorService.CurrentOrientation == FlipOrientation.FaceUp,
+                initialConfig,
+                settingsStore,
+                themeService);
             var overlayAlertService = new OverlayAlertService(pomodoroStateMachine);
 
             // 注册页面和ViewModel
@@ -49,6 +56,8 @@ namespace APP
             // 提供服务实例给应用
             builder.Services.AddSingleton(pomodoroStateMachine);
             builder.Services.AddSingleton(timerEngine);
+            builder.Services.AddSingleton(settingsStore);
+            builder.Services.AddSingleton(themeService);
             builder.Services.AddSingleton(overlayAlertService);
             builder.Services.AddSingleton<IFlipSensorService>(flipSensorService);
 

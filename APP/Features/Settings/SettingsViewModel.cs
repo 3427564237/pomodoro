@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using APP.Core.Config;
 using APP.Core.StateMachine;
+using Microsoft.Maui.Graphics;
 
 namespace APP.Features.Settings
 {
@@ -10,8 +12,31 @@ namespace APP.Features.Settings
         private bool _strictModeEnabled;
         private bool _vibrationEnabled;
         private bool _keepScreenOnEnabled;
+        private FlipTheme _theme;
 
         public event PropertyChangedEventHandler? PropertyChanged;
+        public Color TropicalDotColor => ThemeService.GetPalette(FlipTheme.TropicalSunrise).FocusPrimary;
+        public Color VioletDotColor => ThemeService.GetPalette(FlipTheme.Violet).FocusPrimary;
+        public Color TropicalOptionBackground => IsTropicalSelected
+            ? ThemeService.GetPalette(FlipTheme.TropicalSunrise).FocusSoft
+            : Color.FromArgb("#F7F7F7");
+        public Color VioletOptionBackground => IsVioletSelected
+            ? ThemeService.GetPalette(FlipTheme.Violet).FocusSoft
+            : Color.FromArgb("#F7F7F7");
+        public Color TropicalOptionStroke => IsTropicalSelected
+            ? ThemeService.GetPalette(FlipTheme.TropicalSunrise).FocusPrimary
+            : Color.FromArgb("#E1E1E1");
+        public Color VioletOptionStroke => IsVioletSelected
+            ? ThemeService.GetPalette(FlipTheme.Violet).FocusPrimary
+            : Color.FromArgb("#E1E1E1");
+        public Color TropicalOptionTextColor => IsTropicalSelected
+            ? ThemeService.GetPalette(FlipTheme.TropicalSunrise).FocusPrimary
+            : Color.FromArgb("#6E6E6E");
+        public Color VioletOptionTextColor => IsVioletSelected
+            ? ThemeService.GetPalette(FlipTheme.Violet).FocusPrimary
+            : Color.FromArgb("#6E6E6E");
+        private bool IsTropicalSelected => _theme == FlipTheme.TropicalSunrise;
+        private bool IsVioletSelected => _theme == FlipTheme.Violet;
 
         public bool StrictModeEnabled
         {
@@ -57,6 +82,26 @@ namespace APP.Features.Settings
             _strictModeEnabled = coordinator.Config.StrictModeEnabled;
             _vibrationEnabled = coordinator.Config.VibrationEnabled;
             _keepScreenOnEnabled = coordinator.Config.KeepScreenOnEnabled;
+            _theme = coordinator.Config.Theme;
+        }
+
+        public void SelectTheme(FlipTheme theme)
+        {
+            if (_theme == theme) return;
+
+            _theme = theme;
+            _coordinator.UpdateTheme(theme);
+            NotifyThemeOptionProperties();
+        }
+
+        private void NotifyThemeOptionProperties()
+        {
+            OnPropertyChanged(nameof(TropicalOptionBackground));
+            OnPropertyChanged(nameof(VioletOptionBackground));
+            OnPropertyChanged(nameof(TropicalOptionStroke));
+            OnPropertyChanged(nameof(VioletOptionStroke));
+            OnPropertyChanged(nameof(TropicalOptionTextColor));
+            OnPropertyChanged(nameof(VioletOptionTextColor));
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? name = null)

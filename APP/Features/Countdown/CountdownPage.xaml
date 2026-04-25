@@ -16,18 +16,18 @@
                   HorizontalOptions="Center" VerticalOptions="Center">
 
                 <Border WidthRequest="300" HeightRequest="300"
-                        BackgroundColor="{StaticResource FlipRingOuter}"
+                        BackgroundColor="{DynamicResource FlipRingOuter}"
                         StrokeThickness="0"
                         StrokeShape="RoundRectangle 150" />
 
                 <Border WidthRequest="272" HeightRequest="272"
-                        BackgroundColor="{StaticResource FlipRingInner}"
-                        Stroke="{StaticResource FlipOnPrimary}" StrokeThickness="2"
+                        BackgroundColor="{DynamicResource FlipRingInner}"
+                        Stroke="{DynamicResource FlipOnPrimary}" StrokeThickness="2"
                         StrokeShape="RoundRectangle 136"
                         HorizontalOptions="Center" VerticalOptions="Center" />
 
                 <Label Text="{Binding RemainingText}"
-                       TextColor="{StaticResource FlipOnPrimary}"
+                       TextColor="{DynamicResource FlipOnPrimary}"
                        FontSize="62"
                        FontAttributes="Bold"
                        HorizontalOptions="Center"
@@ -35,7 +35,7 @@
             </Grid>
 
             <Label Text="{Binding PhaseLabel}"
-                   TextColor="{StaticResource FlipMutedText}"
+                   TextColor="{DynamicResource FlipMutedText}"
                    FontSize="16"
                    HorizontalOptions="Center" />
         </VerticalStackLayout>
@@ -43,7 +43,7 @@
         <!-- Overlay (HaveABreak / YouDidIt) -->
         <Grid Grid.Row="0"
               IsVisible="{Binding IsOverlayVisible}"
-              BackgroundColor="{StaticResource FlipOverlayBackground}"
+              BackgroundColor="{DynamicResource FlipOverlayBackground}"
               HorizontalOptions="Fill"
               VerticalOptions="Fill"
               ZIndex="10">
@@ -56,13 +56,13 @@
                                  Spacing="12">
 
                 <Border WidthRequest="160" HeightRequest="160"
-                        BackgroundColor="{StaticResource FlipRingInner}"
+                        BackgroundColor="{DynamicResource FlipRingInner}"
                         StrokeThickness="0"
                         StrokeShape="RoundRectangle 80"
                         HorizontalOptions="Center" />
 
                 <Label Text="{Binding OverlayText}"
-                       TextColor="{StaticResource FlipOnPrimary}"
+                       TextColor="{DynamicResource FlipOnPrimary}"
                        FontSize="28"
                        FontAttributes="Bold"
                        HorizontalOptions="Center" />
@@ -76,11 +76,17 @@
                                Padding="0,0,0,32"
                                IsVisible="{Binding IsControlsPanelVisible}">
             <Button Text="Stop" Clicked="OnStopClicked"
+                    BackgroundColor="{DynamicResource FlipRingInner}"
+                    TextColor="{DynamicResource FlipOnPrimary}"
                     WidthRequest="90" />
             <Button Text="{Binding PauseButtonText}" Clicked="OnPauseClicked"
+                    BackgroundColor="{DynamicResource FlipRingInner}"
+                    TextColor="{DynamicResource FlipOnPrimary}"
                     IsEnabled="{Binding AreControlsEnabled}"
                     WidthRequest="90" />
             <Button Text="Skip" Clicked="OnSkipClicked"
+                    BackgroundColor="{DynamicResource FlipRingInner}"
+                    TextColor="{DynamicResource FlipOnPrimary}"
                     IsEnabled="{Binding AreControlsEnabled}"
                     WidthRequest="90" />
         </HorizontalStackLayout>

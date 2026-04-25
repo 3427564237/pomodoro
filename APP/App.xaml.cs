@@ -1,5 +1,8 @@
-using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using APP.Core.Config;
+using APP.Core.StateMachine;
+using APP.Features.Loading;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace APP
 {
@@ -8,6 +11,7 @@ namespace APP
         public App()
         {
             InitializeComponent();
+            ApplySavedTheme();
 
             AppDomain.CurrentDomain.UnhandledException += (_, args) =>
             {
@@ -23,8 +27,21 @@ namespace APP
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            var appShell = MauiProgram.Services.GetRequiredService<AppShell>();
-            return new Window(appShell);
+            return new Window(new LoadingPage());
+        }
+
+        private static void ApplySavedTheme()
+        {
+            try
+            {
+                var stateMachine = MauiProgram.Services.GetRequiredService<PomodoroStateMachine>();
+                var themeService = MauiProgram.Services.GetRequiredService<ThemeService>();
+                themeService.ApplyTheme(stateMachine.Config.Theme);
+            }
+            catch
+            {
+                // Startup should continue even if theme resources are not ready.
+            }
         }
     }
 }

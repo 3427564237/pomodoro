@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="APP.Features.Loading.LoadingPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{DynamicResource FlipSurface}">
+
+    <Grid Padding="24"
+          RowDefinitions="*,Auto,*">
+
+        <VerticalStackLayout Grid.Row="1"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="18">
+
+            <Grid WidthRequest="168"
+                  HeightRequest="168"
+                  HorizontalOptions="Center"
+                  VerticalOptions="Center">
+
+                <Border WidthRequest="156"
+                        HeightRequest="156"
+                        BackgroundColor="{DynamicResource FlipRingOuter}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 78"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+
+                <Border WidthRequest="124"
+                        HeightRequest="124"
+                        BackgroundColor="{DynamicResource FlipRingInner}"
+                        Stroke="{DynamicResource FlipOnPrimary}"
+                        StrokeThickness="2"
+                        StrokeShape="RoundRectangle 62"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+
+                <Label Text="25"
+                       TextColor="{DynamicResource FlipOnPrimary}"
+                       FontSize="34"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+            </Grid>
+
+            <VerticalStackLayout Spacing="4"
+                                 HorizontalOptions="Center">
+                <Label Text="FlipDoro"
+                       TextColor="{StaticResource Gray900}"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+
+                <Label Text="flip to focus"
+                       TextColor="{DynamicResource FlipMutedText}"
+                       FontSize="14"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

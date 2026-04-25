@@ -5,17 +5,17 @@
 
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
 
-    <Color x:Key="Primary">#512BD4</Color>
-    <Color x:Key="PrimaryDark">#ac99ea</Color>
+    <Color x:Key="Primary">#2EC4B6</Color>
+    <Color x:Key="PrimaryDark">#CBF3F0</Color>
     <Color x:Key="PrimaryDarkText">#242424</Color>
-    <Color x:Key="Secondary">#DFD8F7</Color>
-    <Color x:Key="SecondaryDarkText">#9880e5</Color>
-    <Color x:Key="Tertiary">#2B0B98</Color>
+    <Color x:Key="Secondary">#CBF3F0</Color>
+    <Color x:Key="SecondaryDarkText">#2EC4B6</Color>
+    <Color x:Key="Tertiary">#FF9F1C</Color>
 
     <Color x:Key="White">White</Color>
     <Color x:Key="Black">Black</Color>
-    <Color x:Key="Magenta">#D600AA</Color>
-    <Color x:Key="MidnightBlue">#190649</Color>
+    <Color x:Key="Magenta">#E71D36</Color>
+    <Color x:Key="MidnightBlue">#242424</Color>
     <Color x:Key="OffBlack">#1f1f1f</Color>
 
     <Color x:Key="Gray100">#E1E1E1</Color>
@@ -42,14 +42,20 @@
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
 
-    <!-- Flipdoro app colors (centralized; theme dictionaries will replace these in M3) -->
-    <Color x:Key="FlipRingOuter">#DCD2F3</Color>
-    <Color x:Key="FlipRingInner">#6A52AD</Color>
-    <Color x:Key="FlipRingText">#D4C8EE</Color>
-    <Color x:Key="FlipMutedText">#8E86A8</Color>
+    <!-- Flipdoro app colors (Tropical Sunrise) -->
+    <Color x:Key="FlipFocusInner">#2EC4B6</Color>
+    <Color x:Key="FlipFocusOuter">#CBF3F0</Color>
+    <Color x:Key="FlipBreakInner">#FF9F1C</Color>
+    <Color x:Key="FlipBreakOuter">#FFBF69</Color>
+    <Color x:Key="FlipDanger">#E71D36</Color>
+    <Color x:Key="FlipRingOuter">#CBF3F0</Color>
+    <Color x:Key="FlipRingInner">#2EC4B6</Color>
+    <Color x:Key="FlipRingText">#EFFFFD</Color>
+    <Color x:Key="FlipMutedText">#2EC4B6</Color>
+    <Color x:Key="FlipAccent">#FF9F1C</Color>
     <Color x:Key="FlipOnPrimary">White</Color>
     <Color x:Key="FlipTransparent">Transparent</Color>
     <Color x:Key="FlipSurface">White</Color>
     <Color x:Key="FlipSurfaceDark">#1f1f1f</Color>
-    <Color x:Key="FlipOverlayBackground">#CC3A2D6B</Color>
+    <Color x:Key="FlipOverlayBackground">#CC2EC4B6</Color>
 </ResourceDictionary>

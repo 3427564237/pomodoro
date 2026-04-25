@@ -4,7 +4,7 @@
              x:Class="APP.Features.TimeSettings.TimeSettingsPage"
              Title="Time Settings"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="{AppThemeBinding Light={StaticResource FlipSurface}, Dark={StaticResource FlipSurfaceDark}}">
+             BackgroundColor="{DynamicResource FlipSurface}">
 
     <ScrollView>
         <VerticalStackLayout Padding="24,48,24,24" Spacing="24"
@@ -15,14 +15,14 @@
             <Label Text="Time Settings"
                    FontSize="24"
                    FontAttributes="Bold"
-                   TextColor="{StaticResource FlipOnPrimary}"
+                   TextColor="{StaticResource Gray900}"
                    HorizontalOptions="Center" />
 
             <!-- Cycles -->
             <VerticalStackLayout Spacing="6">
                 <Label Text="Cycles"
                        FontSize="14"
-                       TextColor="{StaticResource FlipMutedText}" />
+                       TextColor="{DynamicResource FlipMutedText}" />
                 <Entry Text="{Binding CyclesText}"
                        Keyboard="Numeric"
                        Placeholder="e.g. 2"
@@ -34,7 +34,7 @@
             <VerticalStackLayout Spacing="6">
                 <Label Text="Focus (minutes)"
                        FontSize="14"
-                       TextColor="{StaticResource FlipMutedText}" />
+                       TextColor="{DynamicResource FlipMutedText}" />
                 <Entry Text="{Binding FocusMinutesText}"
                        Keyboard="Numeric"
                        Placeholder="e.g. 25"
@@ -46,7 +46,7 @@
             <VerticalStackLayout Spacing="6">
                 <Label Text="Break (minutes)"
                        FontSize="14"
-                       TextColor="{StaticResource FlipMutedText}" />
+                       TextColor="{DynamicResource FlipMutedText}" />
                 <Entry Text="{Binding BreakMinutesText}"
                        Keyboard="Numeric"
                        Placeholder="e.g. 5"
@@ -57,15 +57,15 @@
             <!-- Error message -->
             <Label Text="{Binding ErrorMessage}"
                    IsVisible="{Binding HasError}"
-                   TextColor="{StaticResource Magenta}"
+                   TextColor="{DynamicResource FlipDanger}"
                    FontSize="13"
                    HorizontalTextAlignment="Center" />
 
             <!-- Save button -->
             <Button Text="Save"
                     Clicked="OnSaveClicked"
-                    BackgroundColor="{StaticResource FlipRingInner}"
-                    TextColor="{StaticResource FlipOnPrimary}"
+                    BackgroundColor="{DynamicResource FlipRingInner}"
+                    TextColor="{DynamicResource FlipOnPrimary}"
                     CornerRadius="20"
                     Padding="24,8"
                     FontSize="16"
@@ -75,8 +75,8 @@
             <!-- Cancel button -->
             <Button Text="Cancel"
                     Clicked="OnCancelClicked"
-                    BackgroundColor="{StaticResource FlipTransparent}"
-                    TextColor="{StaticResource FlipMutedText}"
+                    BackgroundColor="{DynamicResource FlipTransparent}"
+                    TextColor="{DynamicResource FlipMutedText}"
                     BorderWidth="0"
                     FontSize="14"
                     HorizontalOptions="Center" />

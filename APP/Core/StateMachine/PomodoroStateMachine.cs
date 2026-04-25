@@ -10,6 +10,8 @@ namespace APP.Core.StateMachine
     {
         private readonly TimerEngine _timer;
         private readonly Func<bool>? _isFaceUpQuery;
+        private readonly AppSettingsStore? _settingsStore;
+        private readonly ThemeService? _themeService;
 
         private RuntimeConfig _config;
         private PhaseState _currentPhase = PhaseState.Idle;
@@ -38,17 +40,26 @@ namespace APP.Core.StateMachine
         public bool HasActiveSession => _currentPhase != PhaseState.Idle;
         public RuntimeConfig Config => _config;
 
-        public PomodoroStateMachine(TimerEngine timer, Func<bool>? isFaceUpQuery = null)
+        public PomodoroStateMachine(
+            TimerEngine timer,
+            Func<bool>? isFaceUpQuery = null,
+            RuntimeConfig? initialConfig = null,
+            AppSettingsStore? settingsStore = null,
+            ThemeService? themeService = null)
         {
             _timer = timer;
             _isFaceUpQuery = isFaceUpQuery;
-            _config = new RuntimeConfig(
-                Constants.DefaultCycles,
-                Constants.DefaultFocusDuration,
-                Constants.DefaultBreakDuration);
+            _settingsStore = settingsStore;
+            _themeService = themeService;
+            _config = initialConfig?.Copy()
+                ?? new RuntimeConfig(
+                    Constants.DefaultCycles,
+                    Constants.DefaultFocusDuration,
+                    Constants.DefaultBreakDuration);
 
             _timer.Tick += OnTimerTick;
             _timer.Completed += OnTimerCompleted;
+            ApplyCurrentTheme();
         }
 
         public void UpdateConfig(int cycles, TimeSpan focusDuration, TimeSpan breakDuration)
@@ -59,7 +70,7 @@ namespace APP.Core.StateMachine
             _config.Cycles = cycles;
             _config.FocusDuration = focusDuration;
             _config.BreakDuration = breakDuration;
-            ConfigChanged?.Invoke(_config);
+            SaveAndNotifyConfigChanged();
         }
 
         public void UpdateStrictMode(bool enabled)
@@ -67,7 +78,7 @@ namespace APP.Core.StateMachine
             _config.StrictModeEnabled = enabled;
             if (!enabled && _currentOverlay == OverlayState.PutMeDown)
                 DismissPutMeDown();
-            ConfigChanged?.Invoke(_config);
+            SaveAndNotifyConfigChanged();
         }
 
         public void UpdateVibrationEnabled(bool enabled)
@@ -75,7 +86,7 @@ namespace APP.Core.StateMachine
             if (_config.VibrationEnabled == enabled) return;
 
             _config.VibrationEnabled = enabled;
-            ConfigChanged?.Invoke(_config);
+            SaveAndNotifyConfigChanged();
         }
 
         public void UpdateKeepScreenOnEnabled(bool enabled)
@@ -83,7 +94,15 @@ namespace APP.Core.StateMachine
             if (_config.KeepScreenOnEnabled == enabled) return;
 
             _config.KeepScreenOnEnabled = enabled;
-            ConfigChanged?.Invoke(_config);
+            SaveAndNotifyConfigChanged();
+        }
+
+        public void UpdateTheme(FlipTheme theme)
+        {
+            if (_config.Theme == theme) return;
+
+            _config.Theme = theme;
+            SaveAndNotifyConfigChanged();
         }
 
         public bool RequestStartFocus()
@@ -341,6 +360,7 @@ namespace APP.Core.StateMachine
         {
             if (_currentPhase == phase) return;
             _currentPhase = phase;
+            ApplyCurrentTheme();
             PhaseChanged?.Invoke(phase);
         }
 
@@ -348,7 +368,34 @@ namespace APP.Core.StateMachine
         {
             if (_currentOverlay == overlay) return;
             _currentOverlay = overlay;
+            ApplyCurrentTheme();
             OverlayChanged?.Invoke(overlay);
+        }
+
+        private void SaveAndNotifyConfigChanged()
+        {
+            ApplyCurrentTheme();
+            _settingsStore?.Save(_config);
+            ConfigChanged?.Invoke(_config);
+        }
+
+        private void ApplyCurrentTheme()
+        {
+            _themeService?.ApplyTheme(_config.Theme, GetThemeTone());
+        }
+
+        private ThemeTone GetThemeTone()
+        {
+            if (_currentOverlay == OverlayState.PutMeDown)
+                return ThemeTone.Danger;
+
+            if (_currentOverlay == OverlayState.HaveABreak)
+                return ThemeTone.Break;
+
+            if (_currentPhase == PhaseState.Break)
+                return ThemeTone.Break;
+
+            return ThemeTone.Focus;
         }
 
         private void CancelDismissTimer()

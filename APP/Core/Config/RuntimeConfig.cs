@@ -9,6 +9,7 @@ namespace APP.Core.Config
         public bool StrictModeEnabled { get; set; } = true;
         public bool VibrationEnabled { get; set; } = true;
         public bool KeepScreenOnEnabled { get; set; } = true;
+        public FlipTheme Theme { get; set; } = FlipTheme.TropicalSunrise;
 
         public RuntimeConfig(int cycles, TimeSpan focusDuration, TimeSpan breakDuration)
         {
@@ -23,7 +24,8 @@ namespace APP.Core.Config
             {
                 StrictModeEnabled = StrictModeEnabled,
                 VibrationEnabled = VibrationEnabled,
-                KeepScreenOnEnabled = KeepScreenOnEnabled
+                KeepScreenOnEnabled = KeepScreenOnEnabled,
+                Theme = Theme
             };
         }
     }
