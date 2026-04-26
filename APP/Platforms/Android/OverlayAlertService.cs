@@ -13,6 +13,9 @@ using VibratorManager = Android.OS.VibratorManager;
 
 namespace APP.Platforms.Android
 {
+    // AI-assisted code starts here.
+    // This platform service was drafted with AI help, then reviewed and adapted.
+    // It isolates Android notification and vibration compatibility code from the main timer logic.
     public sealed class OverlayAlertService : IDisposable
     {
         private const string OverlayAlertsChannelId = "overlay_alerts";
@@ -304,5 +307,5 @@ namespace APP.Platforms.Android
             MainActivity.ForegroundChanged -= OnForegroundChanged;
             StopVibration();
         }
-    }
+    } // AI-assisted code ends here.
 }

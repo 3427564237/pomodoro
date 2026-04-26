@@ -6,100 +6,92 @@
              Shell.NavBarIsVisible="False"
              BackgroundColor="{DynamicResource FlipSurface}">
 
-    <Grid RowDefinitions="Auto,*,Auto"
-          RowSpacing="0"
-          Padding="24,24,24,28">
+    <Grid Padding="24,24,24,28">
 
-        <Grid Grid.Row="0"
-              ColumnDefinitions="*,Auto"
-              Padding="0,0,0,8">
-            <Border Grid.Column="1"
-                    WidthRequest="48"
-                    HeightRequest="48"
+        <Border WidthRequest="48"
+                HeightRequest="48"
+                BackgroundColor="{DynamicResource FlipTransparent}"
+                Stroke="{StaticResource Gray200}"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 24"
+                HorizontalOptions="End"
+                VerticalOptions="Start"
+                ZIndex="1">
+            <Button Text="⚙"
+                    FontSize="20"
                     BackgroundColor="{DynamicResource FlipTransparent}"
-                    Stroke="{StaticResource Gray200}"
-                    StrokeThickness="1"
-                    StrokeShape="RoundRectangle 24"
-                    HorizontalOptions="End"
-                    VerticalOptions="Start">
-                <Button Text="⚙"
-                        FontSize="20"
-                        BackgroundColor="{DynamicResource FlipTransparent}"
-                        TextColor="{StaticResource Gray500}"
-                        BorderWidth="0"
-                        Padding="0"
-                        Clicked="OnSettingsClicked" />
-            </Border>
+                    TextColor="{StaticResource Gray500}"
+                    BorderWidth="0"
+                    Padding="0"
+                    Clicked="OnSettingsClicked" />
+        </Border>
+
+        <Grid WidthRequest="300"
+              HeightRequest="300"
+              HorizontalOptions="Center"
+              VerticalOptions="Center"
+              TranslationY="-72">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTimerCircleTapped" />
+            </Grid.GestureRecognizers>
+
+            <Border WidthRequest="300"
+                    HeightRequest="300"
+                    BackgroundColor="{DynamicResource FlipRingOuter}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 150" />
+
+            <Border WidthRequest="272"
+                    HeightRequest="272"
+                    BackgroundColor="{DynamicResource FlipRingInner}"
+                    Stroke="{DynamicResource FlipOnPrimary}"
+                    StrokeThickness="2"
+                    StrokeShape="RoundRectangle 136"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+
+            <Label Text="{Binding TimerDisplay}"
+                   TextColor="{DynamicResource FlipOnPrimary}"
+                   FontSize="62"
+                   FontAttributes="Bold"
+                   TranslationY="-8"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   HorizontalTextAlignment="Center" />
+
+            <Label Text="{Binding ConfigSummary}"
+                   TextColor="{DynamicResource FlipRingText}"
+                   FontSize="14"
+                   Margin="0,118,0,0"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   HorizontalTextAlignment="Center" />
         </Grid>
 
-        <VerticalStackLayout Grid.Row="1"
-                             HorizontalOptions="Center"
+        <VerticalStackLayout HorizontalOptions="Center"
                              VerticalOptions="Center"
-                             MaximumWidthRequest="360"
-                             Margin="0,-18,0,0"
-                             Spacing="22">
+                             TranslationY="124"
+                             Spacing="12">
+            <Label Text="{Binding StartHintText}"
+                   TextColor="{DynamicResource FlipMutedText}"
+                   FontSize="15"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center" />
 
-            <Grid WidthRequest="308"
-                  HeightRequest="308"
-                  HorizontalOptions="Center"
-                  VerticalOptions="Center">
-                <Grid.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnTimerCircleTapped" />
-                </Grid.GestureRecognizers>
-
-                <Border WidthRequest="308"
-                        HeightRequest="308"
-                        BackgroundColor="{DynamicResource FlipRingOuter}"
-                        StrokeThickness="0"
-                        StrokeShape="RoundRectangle 154" />
-
-                <Border WidthRequest="278"
-                        HeightRequest="278"
-                        BackgroundColor="{DynamicResource FlipRingInner}"
-                        Stroke="{DynamicResource FlipOnPrimary}"
-                        StrokeThickness="2"
-                        StrokeShape="RoundRectangle 139"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center" />
-
-                <VerticalStackLayout HorizontalOptions="Center"
-                                     VerticalOptions="Center"
-                                     Spacing="6">
-                    <Label Text="{Binding TimerDisplay}"
-                           TextColor="{DynamicResource FlipOnPrimary}"
-                           FontSize="62"
-                           FontAttributes="Bold"
-                           HorizontalTextAlignment="Center" />
-                    <Label Text="{Binding ConfigSummary}"
-                           TextColor="{DynamicResource FlipRingText}"
-                           FontSize="14"
-                           HorizontalTextAlignment="Center" />
-                </VerticalStackLayout>
-            </Grid>
-
-            <VerticalStackLayout HorizontalOptions="Center"
-                                 Spacing="12">
-                <Label Text="{Binding StartHintText}"
-                       TextColor="{DynamicResource FlipMutedText}"
-                       FontSize="15"
-                       HorizontalOptions="Center"
-                       HorizontalTextAlignment="Center" />
-
-                <Button Text="▶ Start"
-                        BackgroundColor="{DynamicResource FlipRingInner}"
-                        TextColor="{DynamicResource FlipOnPrimary}"
-                        CornerRadius="22"
-                        Padding="28,10"
-                        FontSize="16"
-                        HorizontalOptions="Center"
-                        IsVisible="{Binding IsStartButtonVisible}"
-                        Clicked="OnStartClicked" />
-            </VerticalStackLayout>
+            <Button Text="▶ Start"
+                    BackgroundColor="{DynamicResource FlipRingInner}"
+                    TextColor="{DynamicResource FlipOnPrimary}"
+                    CornerRadius="22"
+                    Padding="28,10"
+                    FontSize="16"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding IsStartButtonVisible}"
+                    Clicked="OnStartClicked" />
         </VerticalStackLayout>
 
-        <Grid Grid.Row="2"
-              ColumnDefinitions="*,*,*,*"
+        <Grid ColumnDefinitions="*,*,*,*"
               Padding="0,12,0,0"
+              VerticalOptions="End"
               IsVisible="False">
             <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
                 <Button Text="📅" FontSize="22"

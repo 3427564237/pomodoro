@@ -1,89 +1,101 @@
-using APP.Core.StateMachine;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace APP.Features.TimeSettings
 {
     public partial class TimeSettingsPage : ContentPage
     {
-        private readonly PomodoroStateMachine _stateMachine;
+        private const int MinuteStep = 5;
 
-        // 输入框绑定的属性
-        public string CyclesText { get; set; } = "2";
-        public string FocusMinutesText { get; set; } = "25";
-        public string BreakMinutesText { get; set; } = "5";
-        public string ErrorMessage { get; set; } = "";
-        public bool HasError { get; set; } = false;
+        private readonly TimeSettingsViewModel _viewModel;
 
         public TimeSettingsPage()
-            : this(MauiProgram.Services.GetRequiredService<PomodoroStateMachine>())
+            : this(MauiProgram.Services.GetRequiredService<TimeSettingsViewModel>())
         {
         }
 
-        public TimeSettingsPage(PomodoroStateMachine stateMachine)
+        public TimeSettingsPage(TimeSettingsViewModel viewModel)
         {
             InitializeComponent();
-            BindingContext = this;
-            _stateMachine = stateMachine;
+            BindingContext = viewModel;
+            _viewModel = viewModel;
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            LoadFromConfig();
-        }
-
-        private void LoadFromConfig()
-        {
-            var config = _stateMachine.Config;
-            CyclesText = config.Cycles.ToString();
-            FocusMinutesText = ((int)config.FocusDuration.TotalMinutes).ToString();
-            BreakMinutesText = ((int)config.BreakDuration.TotalMinutes).ToString();
-            ErrorMessage = "";
-            HasError = false;
-
-            OnPropertyChanged(nameof(CyclesText));
-            OnPropertyChanged(nameof(FocusMinutesText));
-            OnPropertyChanged(nameof(BreakMinutesText));
-            OnPropertyChanged(nameof(ErrorMessage));
-            OnPropertyChanged(nameof(HasError));
+            _viewModel.LoadFromConfig();
         }
 
         private async void OnSaveClicked(object sender, EventArgs e)
         {
-            // 验证输入
-            if (!int.TryParse(CyclesText, out int cycles) || cycles < 1)
-            {
-                ShowError("Cycles must be at least 1");
+            if (!_viewModel.TrySave())
                 return;
-            }
-
-            if (!int.TryParse(FocusMinutesText, out int focusMin) || focusMin < 1)
-            {
-                ShowError("Focus time must be at least 1 minute");
-                return;
-            }
-
-            if (!int.TryParse(BreakMinutesText, out int breakMin) || breakMin < 1)
-            {
-                ShowError("Break time must be at least 1 minute");
-                return;
-            }
-
-            // 保存到状态机
-            _stateMachine.UpdateConfig(
-                cycles,
-                TimeSpan.FromMinutes(focusMin),
-                TimeSpan.FromMinutes(breakMin));
 
             await Shell.Current.GoToAsync("..");
         }
 
-        private void ShowError(string message)
+        private void OnDecreaseFocusClicked(object sender, EventArgs e)
+            => _viewModel.AdjustFocusMinutes(-MinuteStep);
+
+        private void OnIncreaseFocusClicked(object sender, EventArgs e)
+            => _viewModel.AdjustFocusMinutes(MinuteStep);
+
+        private void OnDecreaseBreakClicked(object sender, EventArgs e)
+            => _viewModel.AdjustBreakMinutes(-MinuteStep);
+
+        private void OnIncreaseBreakClicked(object sender, EventArgs e)
+            => _viewModel.AdjustBreakMinutes(MinuteStep);
+
+        private void OnDecreaseCyclesClicked(object sender, EventArgs e)
+            => _viewModel.AdjustCycles(-1);
+
+        private void OnIncreaseCyclesClicked(object sender, EventArgs e)
+            => _viewModel.AdjustCycles(1);
+
+        private async void OnFocusValueTapped(object sender, TappedEventArgs e)
+            => await PromptForPositiveIntAsync(
+                "Focus",
+                "Minutes",
+                _viewModel.FocusMinutesText,
+                _viewModel.TrySetFocusMinutes);
+
+        private async void OnBreakValueTapped(object sender, TappedEventArgs e)
+            => await PromptForPositiveIntAsync(
+                "Break",
+                "Minutes",
+                _viewModel.BreakMinutesText,
+                _viewModel.TrySetBreakMinutes);
+
+        private async void OnCyclesValueTapped(object sender, TappedEventArgs e)
+            => await PromptForPositiveIntAsync(
+                "Cycles",
+                "Rounds",
+                _viewModel.CyclesText,
+                _viewModel.TrySetCycles);
+
+        private async Task PromptForPositiveIntAsync(
+            string title,
+            string message,
+            string initialValue,
+            Func<string, bool> applyValue)
         {
-            ErrorMessage = message;
-            HasError = true;
-            OnPropertyChanged(nameof(ErrorMessage));
-            OnPropertyChanged(nameof(HasError));
+            var value = await DisplayPromptAsync(
+                title,
+                message,
+                "Save",
+                "Cancel",
+                keyboard: Keyboard.Numeric,
+                initialValue: initialValue);
+
+            if (value is null)
+            {
+                return;
+            }
+
+            if (!applyValue(value.Trim()))
+            {
+                await DisplayAlertAsync(title, "Enter a number greater than 0.", "OK");
+            }
         }
 
         private async void OnCancelClicked(object sender, EventArgs e)

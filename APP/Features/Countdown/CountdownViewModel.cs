@@ -10,10 +10,13 @@ namespace APP.Features.Countdown
 {
     public class CountdownViewModel : INotifyPropertyChanged
     {
+        private const double ProgressRingLength = 31.9;
+
         private readonly PomodoroStateMachine _coordinator;
         private string _remainingText = "00:00";
         private string _pauseButtonText = "Pause";
         private string _phaseLabel = "Focus";
+        private double _progressRingDashOffset = ProgressRingLength;
         private bool _isPaused;
         private bool _areControlsEnabled;
         private bool _isOverlayVisible;
@@ -40,6 +43,19 @@ namespace APP.Features.Countdown
         {
             get => _phaseLabel;
             private set { if (_phaseLabel != value) { _phaseLabel = value; OnPropertyChanged(); } }
+        }
+
+        public double ProgressRingDashOffset
+        {
+            get => _progressRingDashOffset;
+            private set
+            {
+                if (Math.Abs(_progressRingDashOffset - value) > 0.1)
+                {
+                    _progressRingDashOffset = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public bool AreControlsEnabled
@@ -162,7 +178,7 @@ namespace APP.Features.Countdown
             PauseButtonText = _isPaused ? "Resume" : "Pause";
             PhaseLabel = _coordinator.CurrentPhase == PhaseState.Break ? "Break" : "Focus";
             AreControlsEnabled = hasSession && overlay == OverlayState.None;
-            RemainingText = hasSession ? FormatTime(_coordinator.CurrentSnapshot.Remaining) : "00:00";
+            ApplyTimerSnapshot(hasSession ? _coordinator.CurrentSnapshot : default);
             ApplyOverlayState(overlay);
         }
 
@@ -170,7 +186,7 @@ namespace APP.Features.Countdown
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                RemainingText = FormatTime(snapshot.Remaining);
+                ApplyTimerSnapshot(snapshot);
             });
         }
 
@@ -181,6 +197,7 @@ namespace APP.Features.Countdown
                 PhaseLabel = phase == PhaseState.Break ? "Break" : "Focus";
                 AreControlsEnabled = phase != PhaseState.Idle
                                      && _coordinator.CurrentOverlay == OverlayState.None;
+                ApplyTimerSnapshot(_coordinator.CurrentSnapshot);
             });
         }
 
@@ -263,6 +280,25 @@ namespace APP.Features.Countdown
             if (ts.TotalHours >= 1)
                 return ts.ToString(@"h\:mm\:ss");
             return ts.ToString(@"mm\:ss");
+        }
+
+        private void ApplyTimerSnapshot(TimerSnapshot snapshot)
+        {
+            RemainingText = snapshot.Total > TimeSpan.Zero
+                ? FormatTime(snapshot.Remaining)
+                : "00:00";
+            ProgressRingDashOffset = GetProgressRingDashOffset(snapshot);
+        }
+
+        private static double GetProgressRingDashOffset(TimerSnapshot snapshot)
+        {
+            if (snapshot.Total <= TimeSpan.Zero)
+                return ProgressRingLength;
+
+            var progress = snapshot.Remaining.TotalMilliseconds / snapshot.Total.TotalMilliseconds;
+            progress = Math.Clamp(progress, 0, 1);
+
+            return ProgressRingLength * (1 - progress);
         }
 
         protected void OnPropertyChanged([CallerMemberName] string? name = null)

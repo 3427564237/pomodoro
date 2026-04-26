@@ -102,9 +102,53 @@ namespace APP.Features.TimeSettings
             return true;
         }
 
+        public void AdjustFocusMinutes(int delta)
+            => FocusMinutesText = AdjustPositiveInt(FocusMinutesText, delta).ToString();
+
+        public void AdjustBreakMinutes(int delta)
+            => BreakMinutesText = AdjustPositiveInt(BreakMinutesText, delta).ToString();
+
+        public void AdjustCycles(int delta)
+            => CyclesText = AdjustPositiveInt(CyclesText, delta).ToString();
+
+        public bool TrySetFocusMinutes(string value)
+            => TrySetPositiveInt(value, text => FocusMinutesText = text);
+
+        public bool TrySetBreakMinutes(string value)
+            => TrySetPositiveInt(value, text => BreakMinutesText = text);
+
+        public bool TrySetCycles(string value)
+            => TrySetPositiveInt(value, text => CyclesText = text);
+
         private void ClearError()
         {
             if (HasError) ErrorMessage = string.Empty;
+        }
+
+        private static int AdjustPositiveInt(string value, int delta)
+        {
+            if (!int.TryParse(value, out var current) || current < 1)
+            {
+                current = 1;
+            }
+
+            if (delta > 1 && current < delta)
+            {
+                return delta;
+            }
+
+            return Math.Max(1, current + delta);
+        }
+
+        private static bool TrySetPositiveInt(string value, Action<string> setValue)
+        {
+            if (!int.TryParse(value, out var parsed) || parsed < 1)
+            {
+                return false;
+            }
+
+            setValue(parsed.ToString());
+            return true;
         }
 
         private void OnPropertyChanged([CallerMemberName] string? name = null)

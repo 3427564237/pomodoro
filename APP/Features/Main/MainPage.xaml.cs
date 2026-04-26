@@ -9,6 +9,7 @@ namespace APP.Features.Main
         private readonly PomodoroStateMachine _coordinator;
         private readonly IFlipSensorService _flipSensor;
         private bool _flipSubscribed;
+        private bool _isNavigating;
 
         public MainPage(MainViewModel viewModel, PomodoroStateMachine coordinator, IFlipSensorService flipSensor)
         {
@@ -21,6 +22,7 @@ namespace APP.Features.Main
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            _isNavigating = false;
             ((MainViewModel)BindingContext).Activate();
             StartFlipListening();
         }
@@ -50,20 +52,60 @@ namespace APP.Features.Main
 
         private void OnFlipDown()
         {
-            MainThread.BeginInvokeOnMainThread(() =>
+            MainThread.BeginInvokeOnMainThread(async () =>
             {
-                _coordinator.RequestStartFocus();
+                await StartCountdownAsync();
             });
         }
 
         private async void OnSettingsClicked(object sender, EventArgs e)
-            => await Shell.Current.GoToAsync(Routes.Settings);
+            => await NavigateOnceAsync(Routes.Settings);
 
         private async void OnTimerCircleTapped(object sender, TappedEventArgs e)
-            => await Shell.Current.GoToAsync(Routes.TimeSettings);
+            => await NavigateOnceAsync(Routes.TimeSettings);
 
-        private void OnStartClicked(object sender, EventArgs e)
-            => _coordinator.RequestStartFocus();
+        private async void OnStartClicked(object sender, EventArgs e)
+            => await StartCountdownAsync();
+
+        private async Task StartCountdownAsync()
+        {
+            if (_isNavigating) return;
+
+            _isNavigating = true;
+            try
+            {
+                await Shell.Current.GoToAsync(Routes.Countdown, false);
+
+                if (!_coordinator.HasActiveSession && !_coordinator.RequestStartFocus())
+                {
+                    await Shell.Current.GoToAsync("..", false);
+                }
+            }
+            catch
+            {
+                if (_coordinator.HasActiveSession)
+                    _coordinator.Stop();
+            }
+            finally
+            {
+                _isNavigating = false;
+            }
+        }
+
+        private async Task NavigateOnceAsync(string route)
+        {
+            if (_isNavigating) return;
+
+            _isNavigating = true;
+            try
+            {
+                await Shell.Current.GoToAsync(route, false);
+            }
+            finally
+            {
+                _isNavigating = false;
+            }
+        }
 
         private async void OnCalendarClicked(object sender, EventArgs e)
             => await Shell.Current.GoToAsync($"{Routes.Placeholder}?title=Calendar");

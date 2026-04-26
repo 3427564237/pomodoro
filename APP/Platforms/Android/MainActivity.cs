@@ -8,7 +8,7 @@ using MauiColor = Microsoft.Maui.Graphics.Color;
 
 namespace APP
 {
-    [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
+    [Activity(Theme = "@style/AppSplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
     public class MainActivity : MauiAppCompatActivity
     {
         private const int NotificationPermissionRequestCode = 1001;
@@ -22,7 +22,8 @@ namespace APP
         // This activity hosts the MAUI window and also tracks foreground state for overlay alerts.
         protected override void OnCreate(Bundle? savedInstanceState)
         {
-            base.OnCreate(savedInstanceState);
+            // Avoid restoring stale Fragment state when MAUI root page is replaced during startup.
+            base.OnCreate(null);
             _currentActivity = this;
         }
 

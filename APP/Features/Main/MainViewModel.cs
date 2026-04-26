@@ -71,10 +71,8 @@ namespace APP.Features.Main
             ConfigSummary = config.Cycles == 1
                 ? $"1 cycle · {(int)config.BreakDuration.TotalMinutes} min break"
                 : $"{config.Cycles} cycles · {(int)config.BreakDuration.TotalMinutes} min break";
-            IsStartButtonVisible = !config.StrictModeEnabled;
-            StartHintText = config.StrictModeEnabled
-                ? "Face down to start"
-                : "Face down or tap Start";
+            IsStartButtonVisible = true;
+            StartHintText = "Face down or tap Start";
         }
 
         private void OnPropertyChanged([CallerMemberName] string? name = null)

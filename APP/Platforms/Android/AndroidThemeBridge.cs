@@ -15,6 +15,9 @@ using MauiSwitch = Microsoft.Maui.Controls.Switch;
 
 namespace APP.Platforms.Android
 {
+    // AI-assisted code starts here.
+    // This Android-specific bridge was drafted with AI help, then reviewed and adapted.
+    // It handles MAUI handler mapping, native tinting, and ripple feedback for visual polish.
     public static class AndroidThemeBridge
     {
         private static readonly MauiColor StatusBarColor = MauiColor.FromArgb("#FFFFFF");
@@ -225,5 +228,5 @@ namespace APP.Platforms.Android
 
         private static MauiColor WithAlpha(MauiColor color, float alpha)
             => MauiColor.FromRgba(color.Red, color.Green, color.Blue, alpha);
-    }
+    } // AI-assisted code ends here.
 }

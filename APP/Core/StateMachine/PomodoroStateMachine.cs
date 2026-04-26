@@ -110,13 +110,11 @@ namespace APP.Core.StateMachine
             if (HasActiveSession) return false;
 
             StartFocusInternal(_config.Cycles, _config.FocusDuration);
-            try
-            {
-                Shell.Current.GoToAsync(Routes.Countdown);
-            }
-            catch { }
             return true;
         }
+
+        public Task<bool> RequestStartFocusAsync()
+            => Task.FromResult(RequestStartFocus());
 
         public void StartFocus(int cycles, TimeSpan focusDuration, TimeSpan breakDuration)
         {

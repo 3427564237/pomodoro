@@ -2,84 +2,238 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="APP.Features.TimeSettings.TimeSettingsPage"
-             Title="Time Settings"
+             Title=""
              Shell.NavBarIsVisible="False"
              BackgroundColor="{DynamicResource FlipSurface}">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="24,48,24,24" Spacing="24"
-                             VerticalOptions="Center"
-                             HorizontalOptions="Center"
-                             MaximumWidthRequest="360">
+    <ContentPage.Resources>
+        <Style x:Key="StepperButton"
+               TargetType="Button">
+            <Setter Property="WidthRequest" Value="44" />
+            <Setter Property="HeightRequest" Value="44" />
+            <Setter Property="CornerRadius" Value="22" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="BackgroundColor" Value="{DynamicResource FlipSecondaryActionBackground}" />
+            <Setter Property="TextColor" Value="{DynamicResource FlipRingInner}" />
+            <Setter Property="BorderWidth" Value="0" />
+        </Style>
+    </ContentPage.Resources>
 
-            <Label Text="Time Settings"
-                   FontSize="24"
+    <Grid RowDefinitions="Auto,*,Auto"
+          Padding="22,14,22,24"
+          RowSpacing="14">
+
+        <Grid Grid.Row="0"
+              ColumnDefinitions="48,*,48"
+              ColumnSpacing="8">
+            <Button Grid.Column="0"
+                    Text="&lt;"
+                    FontSize="28"
+                    BackgroundColor="{DynamicResource FlipTransparent}"
+                    TextColor="{StaticResource Gray900}"
+                    BorderWidth="0"
+                    Padding="0"
+                    Clicked="OnCancelClicked" />
+
+            <Label Grid.Column="1"
+                   Text="Timer"
+                   FontSize="30"
                    FontAttributes="Bold"
                    TextColor="{StaticResource Gray900}"
-                   HorizontalOptions="Center" />
-
-            <!-- Cycles -->
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Cycles"
-                       FontSize="15"
-                       TextColor="{DynamicResource FlipMutedText}" />
-                <Entry Text="{Binding CyclesText}"
-                       Keyboard="Numeric"
-                       Placeholder="e.g. 2"
-                       FontSize="18"
-                       HorizontalTextAlignment="Center" />
-            </VerticalStackLayout>
-
-            <!-- Focus minutes -->
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Focus (minutes)"
-                       FontSize="15"
-                       TextColor="{DynamicResource FlipMutedText}" />
-                <Entry Text="{Binding FocusMinutesText}"
-                       Keyboard="Numeric"
-                       Placeholder="e.g. 25"
-                       FontSize="18"
-                       HorizontalTextAlignment="Center" />
-            </VerticalStackLayout>
-
-            <!-- Break minutes -->
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Break (minutes)"
-                       FontSize="15"
-                       TextColor="{DynamicResource FlipMutedText}" />
-                <Entry Text="{Binding BreakMinutesText}"
-                       Keyboard="Numeric"
-                       Placeholder="e.g. 5"
-                       FontSize="18"
-                       HorizontalTextAlignment="Center" />
-            </VerticalStackLayout>
-
-            <!-- Error message -->
-            <Label Text="{Binding ErrorMessage}"
-                   IsVisible="{Binding HasError}"
-                   TextColor="{DynamicResource FlipDanger}"
-                   FontSize="13"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
                    HorizontalTextAlignment="Center" />
+        </Grid>
 
-            <!-- Save button -->
-            <Button Text="Save"
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="14"
+                                 HorizontalOptions="Center"
+                                 MaximumWidthRequest="380"
+                                 Padding="0,24,0,8">
+
+                <Border BackgroundColor="{DynamicResource FlipTransparent}"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="18,14">
+                    <Grid ColumnDefinitions="*,154"
+                          ColumnSpacing="14">
+                        <VerticalStackLayout Grid.Column="0"
+                                             Spacing="3"
+                                             VerticalOptions="Center">
+                            <Label Text="Focus"
+                                   FontSize="19"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Gray900}" />
+                            <Label Text="minutes"
+                                   FontSize="14"
+                                   TextColor="{StaticResource Gray500}" />
+                        </VerticalStackLayout>
+
+                        <Grid Grid.Column="1"
+                              ColumnDefinitions="44,*,44"
+                              ColumnSpacing="10"
+                              VerticalOptions="Center">
+                            <Button Grid.Column="0"
+                                    Text="-"
+                                    Style="{StaticResource StepperButton}"
+                                    Clicked="OnDecreaseFocusClicked" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding FocusMinutesText}"
+                                   FontSize="28"
+                                   FontAttributes="Bold"
+                                   TextColor="{DynamicResource FlipRingInner}"
+                                   MinimumWidthRequest="44"
+                                   MinimumHeightRequest="44"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   HorizontalTextAlignment="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnFocusValueTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Button Grid.Column="2"
+                                    Text="+"
+                                    Style="{StaticResource StepperButton}"
+                                    Clicked="OnIncreaseFocusClicked" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border BackgroundColor="{DynamicResource FlipTransparent}"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="18,14">
+                    <Grid ColumnDefinitions="*,154"
+                          ColumnSpacing="14">
+                        <VerticalStackLayout Grid.Column="0"
+                                             Spacing="3"
+                                             VerticalOptions="Center">
+                            <Label Text="Break"
+                                   FontSize="19"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Gray900}" />
+                            <Label Text="minutes"
+                                   FontSize="14"
+                                   TextColor="{StaticResource Gray500}" />
+                        </VerticalStackLayout>
+
+                        <Grid Grid.Column="1"
+                              ColumnDefinitions="44,*,44"
+                              ColumnSpacing="10"
+                              VerticalOptions="Center">
+                            <Button Grid.Column="0"
+                                    Text="-"
+                                    Style="{StaticResource StepperButton}"
+                                    Clicked="OnDecreaseBreakClicked" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding BreakMinutesText}"
+                                   FontSize="28"
+                                   FontAttributes="Bold"
+                                   TextColor="{DynamicResource FlipRingInner}"
+                                   MinimumWidthRequest="44"
+                                   MinimumHeightRequest="44"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   HorizontalTextAlignment="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnBreakValueTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Button Grid.Column="2"
+                                    Text="+"
+                                    Style="{StaticResource StepperButton}"
+                                    Clicked="OnIncreaseBreakClicked" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border BackgroundColor="{DynamicResource FlipTransparent}"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="18,14">
+                    <Grid ColumnDefinitions="*,154"
+                          ColumnSpacing="14">
+                        <VerticalStackLayout Grid.Column="0"
+                                             Spacing="3"
+                                             VerticalOptions="Center">
+                            <Label Text="Cycles"
+                                   FontSize="19"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource Gray900}" />
+                            <Label Text="rounds"
+                                   FontSize="14"
+                                   TextColor="{StaticResource Gray500}" />
+                        </VerticalStackLayout>
+
+                        <Grid Grid.Column="1"
+                              ColumnDefinitions="44,*,44"
+                              ColumnSpacing="10"
+                              VerticalOptions="Center">
+                            <Button Grid.Column="0"
+                                    Text="-"
+                                    Style="{StaticResource StepperButton}"
+                                    Clicked="OnDecreaseCyclesClicked" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding CyclesText}"
+                                   FontSize="28"
+                                   FontAttributes="Bold"
+                                   TextColor="{DynamicResource FlipRingInner}"
+                                   MinimumWidthRequest="44"
+                                   MinimumHeightRequest="44"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   HorizontalTextAlignment="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCyclesValueTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Button Grid.Column="2"
+                                    Text="+"
+                                    Style="{StaticResource StepperButton}"
+                                    Clicked="OnIncreaseCyclesClicked" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Label Text="{Binding ErrorMessage}"
+                       IsVisible="{Binding HasError}"
+                       TextColor="{DynamicResource FlipDanger}"
+                       FontSize="14"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,4,0,0" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2"
+              RowDefinitions="Auto,Auto"
+              RowSpacing="4"
+              HorizontalOptions="Center"
+              MaximumWidthRequest="380">
+            <Button Grid.Row="0"
+                    Text="Save"
                     Clicked="OnSaveClicked"
                     BackgroundColor="{DynamicResource FlipRingInner}"
                     TextColor="{DynamicResource FlipOnPrimary}"
-                    CornerRadius="20"
-                    Padding="24,8"
-                    FontSize="16"
-                    HorizontalOptions="Center"
-                    WidthRequest="200" />
+                    CornerRadius="24"
+                    HeightRequest="52"
+                    FontSize="17"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Fill"
+                    WidthRequest="336" />
 
-            <!-- Cancel button -->
-            <Button Text="Cancel"
+            <Button Grid.Row="1"
+                    Text="Cancel"
                     Clicked="OnCancelClicked"
                     BackgroundColor="{DynamicResource FlipTransparent}"
                     TextColor="{DynamicResource FlipMutedText}"
                     BorderWidth="0"
                     FontSize="14"
                     HorizontalOptions="Center" />
-        </VerticalStackLayout>
-    </ScrollView>
+        </Grid>
+    </Grid>
 </ContentPage>
